@@ -58,3 +58,42 @@ body {
       margin-top: 1rem;
       font-size: 0.85rem;
     }
+/* COMPENDIUM */
+.compendium-intro { margin-top: 0.25rem; color: #444; }
+.compendium-stats {
+  margin: 1rem 0 1.25rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #eee;
+  background: #fafafa;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.year-divider {
+  margin: 1.25rem 0 0.5rem 0;
+  font-size: 1.15rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.25rem;
+  color: #333;
+}
+.tweet-tags { margin-top: 0.35rem; }
+.tag-badge {
+  display: inline-block;
+  border: 1px solid #ddd;
+  background: #f3f3f3;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  margin-right: 0.35rem;
+  font-size: 0.75rem;
+  color: #444;
+}
+.tweet.featured {
+  border-left: 4px solid #222;
+  padding-left: 0.75rem;
+}
+.tweet-text-ascii pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0 0;
+}

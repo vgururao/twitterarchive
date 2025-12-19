@@ -1,0 +1,75 @@
+/* === COMPENDIUM === */
+
+.compedium-page .tweet {
+  position: relative;
+  padding: 0.9rem 0;
+}
+
+/* Content-first layout */
+.tweet-content {
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+/* Footer meta row */
+.tweet-meta-footer {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tag styling */
+.tweet-tags {
+  margin-top: 0.35rem;
+}
+
+.tag-badge {
+  background: #eef1f5;
+  border: 1px solid #d5dbe3;
+  color: #333;
+}
+
+/* Featured = magazine callout */
+.tweet.featured {
+  border: 1px solid #ddd;
+  background: #f9f9f7;
+  padding: 0.9rem 1rem;
+  border-radius: 6px;
+}
+
+.tweet.featured .tweet-content {
+  font-weight: 600;
+}
+
+/* Star indicator */
+.tweet-star {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  font-size: 0.85rem;
+  color: #c8a000;
+  opacity: 0.8;
+}
+
+/* ASCII tweets */
+.tweet-text-ascii pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #fafafa;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+/* === ASCII FIX PATCH (manual) START === */
+.compendium-page [data-tweet-id="1018724483509542912"] pre,
+.compendium-page [data-tweet-id="1018734664352059392"] pre {
+  white-space: pre;        /* critical: do NOT wrap */
+  overflow-x: auto;        /* allow horizontal scroll */
+  font-size: 0.90rem;      /* optional: slightly smaller */
+  line-height: 1.15;       /* optional: tighter */
+}
+/* === ASCII FIX PATCH (manual) END === */
