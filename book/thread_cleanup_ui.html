@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Thread Cleanup UI</title>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; padding: 1rem 2rem; background: #f7f7f7; }
+    header { margin-bottom: 1rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+    .controls input[type="text"] { padding: 0.25rem 0.5rem; min-width: 260px; }
+    .controls input[type="number"] { padding: 0.2rem 0.4rem; width: 6rem; }
+    .card { background: #fff; border-radius: 6px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 1rem; }
+    .tweet-row { border-top: 1px solid #eee; padding: 0.5rem 0; display: flex; gap: 0.75rem; }
+    .tweet-row:first-child { border-top: none; }
+    .tweet-main { flex: 1; }
+    .tweet-meta { font-size: 0.8rem; color: #555; margin-bottom: 0.25rem; }
+    .tweet-text { font-size: 0.9rem; line-height: 1.35; }
+    .nav { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.5rem; }
+    .nav button { padding: 0.25rem 0.6rem; }
+    .export textarea { width: 100%; height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; }
+    .pill { font-size: 0.75rem; color: #b04; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Thread Cleanup UI</h1>
+  <p>
+    Loads existing chapter HTML files, lets you mark tweets to drop.
+    Exports a patch file (JSON) keyed by <code>thread_id</code>.
+  </p>
+</header>
+
+<section class="controls">
+  <div>
+    <label>Chapter filename filter:
+      <input id="fileFilter" type="text" placeholder="e.g. 012_ or thread id...">
+    </label>
+  </div>
+  <div>
+    <label>Search tweet text:
+      <input id="textFilter" type="text" placeholder="e.g. unroll, threadreader...">
+    </label>
+  </div>
+  <div>
+    <label>Max tweets shown:
+      <input id="maxTweets" type="number" value="999" min="1">
+    </label>
+  </div>
+  <button id="reloadBtn">Reload list</button>
+</section>
+
+<div class="nav">
+  <button id="prevBtn">&laquo; Prev chapter</button>
+  <div id="status"></div>
+  <button id="nextBtn">Next chapter &raquo;</button>
+</div>
+
+<div id="chapterCard" class="card"></div>
+
+<section class="export">
+  <h2>Export patches</h2>
+  <p class="pill">Only chapters where you checked at least one tweet will be included.</p>
+  <button id="exportBtn">Generate thread_patches.json</button>
+  <button id="downloadBtn">Download thread_patches.json</button>
+  <textarea id="out" readonly></textarea>
+</section>
+
+<script>
+  // You must generate this file list once (see python script below)
+  const CHAPTERS_LIST_URL = "chapters_list.json";
+  const CHAPTERS_DIR = "chapters/";
+
+  let chapters = [];          // [{filename, thread_id}]
+  let filteredChapters = [];
+  let idx = 0;
+
+  // patches[thread_id] = { drop_tweets: Set([...]) }
+  const patches = new Map();
+
+  function parseThreadIdFromFilename(name) {
+    // expects NNN_<threadid>.html
+    const m = name.match(/^\d+_(\d+)\.html$/);
+    return m ? m[1] : null;
+  }
+
+  async function loadChaptersList() {
+    const res = await fetch(CHAPTERS_LIST_URL);
+    if (!res.ok) throw new Error("Failed to load " + CHAPTERS_LIST_URL);
+    const data = await res.json();
+    chapters = data.map(fn => ({ filename: fn, thread_id: parseThreadIdFromFilename(fn) }));
+  }
+
+  function applyChapterFilter() {
+    const fileFilter = document.getElementById("fileFilter").value.trim().toLowerCase();
+    filteredChapters = chapters.filter(c => {
+      if (!fileFilter) return true;
+      return c.filename.toLowerCase().includes(fileFilter) || (c.thread_id && c.thread_id.includes(fileFilter));
+    });
+    idx = 0;
+  }
+
+  function setStatus() {
+    const el = document.getElementById("status");
+    if (filteredChapters.length === 0) {
+      el.textContent = "No chapters match filter.";
+      return;
+    }
+    el.textContent = `Chapter ${idx+1} / ${filteredChapters.length}  —  ${filteredChapters[idx].filename}`;
+  }
+
+  function getOrCreatePatch(thread_id) {
+    if (!patches.has(thread_id)) {
+      patches.set(thread_id, { drop_tweets: new Set() });
+    }
+    return patches.get(thread_id);
+  }
+
+  function extractTweetsFromChapterDoc(doc) {
+    const tweetDivs = Array.from(doc.querySelectorAll(".tweet"));
+    const tweets = [];
+
+    for (const div of tweetDivs) {
+      // only meta inside this tweet block
+      const metaEl = div.querySelector(":scope > .tweet-meta") || div.querySelector(".tweet-meta");
+      const textEl = div.querySelector(":scope > .tweet-text") || div.querySelector(".tweet-text");
+
+      const meta = metaEl ? metaEl.textContent : "";
+      const text = textEl ? textEl.textContent : "";
+
+      // require " · id " to avoid accidentally matching other numbers
+      const m = meta.match(/(?:^|·)\s*id\s+(\d+)\s*$/) || meta.match(/\bid\s+(\d+)\b/);
+      const id_str = m ? m[1] : null;
+
+      if (id_str) tweets.push({ id_str, meta, text });
+    }
+
+    return tweets;
+  }
+
+  async function loadAndRenderCurrentChapter() {
+    if (filteredChapters.length === 0) {
+      document.getElementById("chapterCard").innerHTML = "<em>No chapter to display.</em>";
+      setStatus();
+      return;
+    }
+
+    setStatus();
+
+    const { filename, thread_id } = filteredChapters[idx];
+    const url = CHAPTERS_DIR + filename;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch " + url);
+    const html = await res.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const headerTitle = doc.querySelector("h1")?.textContent || "(no title)";
+    const chapterMeta = doc.querySelector(".chapter-meta")?.textContent || "";
+
+    const tweets = extractTweetsFromChapterDoc(doc);
+
+    const maxTweets = parseInt(document.getElementById("maxTweets").value, 10) || 999;
+    const textFilter = document.getElementById("textFilter").value.trim().toLowerCase();
+
+    const shown = tweets.filter(t => {
+      if (!textFilter) return true;
+      return (t.text || "").toLowerCase().includes(textFilter) || (t.meta || "").toLowerCase().includes(textFilter);
+    }).slice(0, maxTweets);
+
+    const patch = getOrCreatePatch(thread_id);
+
+    const container = document.getElementById("chapterCard");
+    container.innerHTML = "";
+
+    const top = document.createElement("div");
+    top.innerHTML = `
+      <h2>${escapeHtml(headerTitle)}</h2>
+      <div class="pill">thread_id: ${thread_id || "?"} · file: ${escapeHtml(filename)}</div>
+      <div class="tweet-meta">${escapeHtml(chapterMeta)}</div>
+      <div class="pill">Tweets in chapter: ${tweets.length} · Shown: ${shown.length} · Marked to drop: ${patch.drop_tweets.size}</div>
+      <div class="nav" style="margin-top:0.75rem;">
+        <button id="markAllShown">Mark ALL shown to drop</button>
+        <button id="unmarkAllShown">Unmark ALL shown</button>
+      </div>
+    `;
+    container.appendChild(top);
+
+    const list = document.createElement("div");
+    shown.forEach(t => {
+      const row = document.createElement("div");
+      row.className = "tweet-row";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = patch.drop_tweets.has(t.id_str);
+      cb.addEventListener("change", () => {
+        if (cb.checked) patch.drop_tweets.add(t.id_str);
+        else patch.drop_tweets.delete(t.id_str);
+        // update counter line by rerender top quickly
+        loadAndRenderCurrentChapter();
+      });
+
+      const main = document.createElement("div");
+      main.className = "tweet-main";
+      const meta = document.createElement("div");
+      meta.className = "tweet-meta";
+      meta.textContent = t.meta;
+      const text = document.createElement("div");
+      text.className = "tweet-text";
+      text.textContent = t.text;
+
+      main.appendChild(meta);
+      main.appendChild(text);
+
+      row.appendChild(cb);
+      row.appendChild(main);
+      list.appendChild(row);
+    });
+    container.appendChild(list);
+
+    // Mark/unmark all
+    container.querySelector("#markAllShown").addEventListener("click", () => {
+      shown.forEach(t => patch.drop_tweets.add(t.id_str));
+      loadAndRenderCurrentChapter();
+    });
+    container.querySelector("#unmarkAllShown").addEventListener("click", () => {
+      shown.forEach(t => patch.drop_tweets.delete(t.id_str));
+      loadAndRenderCurrentChapter();
+    });
+  }
+
+  function exportPatches() {
+    const out = {};
+    for (const [thread_id, p] of patches.entries()) {
+      if (!thread_id) continue;
+      const drops = Array.from(p.drop_tweets);
+      if (drops.length === 0) continue;
+      out[thread_id] = { drop_tweets: drops };
+    }
+    return out;
+  }
+
+  function downloadJson(obj, filename) {
+    const text = JSON.stringify(obj, null, 2);
+    const blob = new Blob([text], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function escapeHtml(s) {
+    return (s || "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  async function init() {
+    await loadChaptersList();
+    applyChapterFilter();
+    await loadAndRenderCurrentChapter();
+  }
+
+  document.getElementById("reloadBtn").addEventListener("click", async () => {
+    applyChapterFilter();
+    await loadAndRenderCurrentChapter();
+  });
+
+  document.getElementById("prevBtn").addEventListener("click", async () => {
+    if (idx > 0) idx--;
+    await loadAndRenderCurrentChapter();
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", async () => {
+    if (idx < filteredChapters.length - 1) idx++;
+    await loadAndRenderCurrentChapter();
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const obj = exportPatches();
+    const text = JSON.stringify(obj, null, 2);
+    document.getElementById("out").value = text;
+  });
+
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    const obj = exportPatches();
+    document.getElementById("out").value = JSON.stringify(obj, null, 2);
+    downloadJson(obj, "thread_patches.json");
+  });
+
+  init().catch(err => {
+    console.error(err);
+    alert("Error: " + err.message);
+  });
+</script>
+</body>
+</html>

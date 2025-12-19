@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Compendium Tagging UI</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1rem 2rem;
+      background: #f7f7f7;
+    }
+    header {
+      margin-bottom: 1rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .controls input[type="text"] {
+      padding: 0.25rem 0.5rem;
+      min-width: 240px;
+    }
+    .controls input[type="number"] {
+      padding: 0.2rem 0.4rem;
+      width: 5rem;
+    }
+    .tweet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .tweet-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      font-size: 0.9rem;
+    }
+    .tweet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+    .tweet-meta {
+      font-size: 0.8rem;
+      color: #555;
+    }
+    .tweet-text {
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .tag-row {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .tag-row select {
+      padding: 0.2rem 0.3rem;
+    }
+    .tag-row input[type="text"] {
+      padding: 0.2rem 0.3rem;
+      min-width: 160px;
+    }
+    .badges {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: #b04;
+    }
+    .pagination {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .pagination button {
+      padding: 0.25rem 0.6rem;
+    }
+    .export-area {
+      margin-top: 1.5rem;
+    }
+    .export-area textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Compendium Tagging UI</h1>
+    <p>
+      Chronological review + tagging for compendium tweets. Adjust tags, mark
+      <strong>featured</strong> or <strong>discard</strong>, then export.
+    </p>
+  </header>
+
+  <section class="controls">
+    <div>
+      <label>Search text:
+        <input type="text" id="searchInput" placeholder="Filter by text...">
+      </label>
+    </div>
+    <div>
+      <label>Filter tag:
+        <select id="tagFilter">
+          <option value="">(any)</option>
+          <option value="aphorism">aphorism</option>
+          <option value="hot_take">hot_take</option>
+          <option value="joke">joke</option>
+          <option value="advice">advice</option>
+          <option value="reflection">reflection</option>
+          <option value="unclassified">unclassified</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Show:
+        <select id="statusFilter">
+          <option value="all">all</option>
+          <option value="featured_only">featured only</option>
+          <option value="non_discarded">non-discarded</option>
+          <option value="discarded_only">discarded only</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label>Page size:
+        <input type="number" id="pageSizeInput" value="30" min="5">
+      </label>
+    </div>
+    <div>
+      <button id="applyFiltersBtn">Apply filters</button>
+    </div>
+    <div id="summary"></div>
+  </section>
+
+  <section class="tweet-list" id="tweetList"></section>
+
+  <div class="pagination">
+    <button id="prevPageBtn">&laquo; Prev</button>
+    <span id="pageInfo"></span>
+    <button id="nextPageBtn">Next &raquo;</button>
+  </div>
+
+  <section class="export-area">
+    <h2>Export Tagged Compendium</h2>
+    <p>
+      Exports the full <code>compendium_tagged.json</code>-style structure
+      with updated <code>tags</code>, <code>featured</code>, and <code>discard</code>.
+    </p>
+    <button id="exportBtn">Generate JSON</button>
+    <button id="downloadBtn">Download compendium_tagged_updated.json</button>
+    <textarea id="exportOutput" readonly></textarea>
+  </section>
+
+  <script>
+
+    const DATA_URL = "compendium_tagged.json";
+
+    // master data
+    let allData = { tweets: [] };
+    let filteredTweets = [];
+    let page = 1;
+    let pageSize = 30;
+
+    // canonical tag set you can extend as needed
+    const COMMON_TAGS = [
+      "aphorism",
+      "hot_take",
+      "joke",
+      "advice",
+      "reflection",
+      "unclassified"
+    ];
+    function parseDateSafe(s) {
+      if (!s) return 0;
+      const d = new Date(s);
+      if (!isNaN(d)) return d.getTime();
+      // Fallback: string compare key
+      return s;
+}
+
+    async function loadData() {
+      const res = await fetch(DATA_URL);
+      if (!res.ok) throw new Error("Failed to load " + DATA_URL);
+      const data = await res.json();
+      allData = data;
+      filteredTweets = allData.tweets.slice();
+      render();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById("searchInput").value.toLowerCase().trim();
+      const tagFilter = document.getElementById("tagFilter").value;
+      const statusFilter = document.getElementById("statusFilter").value;
+
+      filteredTweets = allData.tweets.filter(t => {
+        if (search) {
+          const text = (t.text || "").toLowerCase();
+          if (!text.includes(search)) return false;
+        }
+        if (tagFilter) {
+          const tags = t.tags || [];
+          if (!tags.includes(tagFilter)) return false;
+        }
+        if (statusFilter === "featured_only" && !t.featured) return false;
+        if (statusFilter === "non_discarded" && t.discard) return false;
+        if (statusFilter === "discarded_only" && !t.discard) return false;
+        return true;
+      });
+
+      page = 1;
+      render();
+    }
+
+    function ensureArrayTags(t) {
+      if (!Array.isArray(t.tags)) {
+        t.tags = [];
+      }
+    }
+
+    function render() {
+      pageSize = parseInt(document.getElementById("pageSizeInput").value, 10) || 30;
+
+      // Always enforce chronological order (oldest first)
+      filteredTweets.sort((a, b) => {
+        const ta = parseDateSafe(a.created_at);
+        const tb = parseDateSafe(b.created_at);
+        if (ta < tb) return -1;
+        if (ta > tb) return 1;
+        // tie-breaker on id
+        if (a.id_str < b.id_str) return -1;
+        if (a.id_str > b.id_str) return 1;
+        return 0;
+      });
+
+      const total = filteredTweets.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (page > totalPages) page = totalPages;
+
+      const startIdx = (page - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+
+      const container = document.getElementById("tweetList");
+      container.innerHTML = "";
+
+      for (let i = startIdx; i < endIdx; i++) {
+        const t = filteredTweets[i];
+        ensureArrayTags(t);
+
+        const card = document.createElement("div");
+        card.className = "tweet-card";
+
+        const header = document.createElement("div");
+        header.className = "tweet-header";
+
+        const left = document.createElement("div");
+        const meta = document.createElement("div");
+        meta.className = "tweet-meta";
+        meta.textContent =
+          `${t.created_at || ""} · ID ${t.id_str} · ❤️ ${t.favorite_count} · `
+          + `🔁 ${t.retweet_count}`;
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        const featuredLabel = document.createElement("label");
+        const featuredCb = document.createElement("input");
+        featuredCb.type = "checkbox";
+        featuredCb.checked = !!t.featured;
+        featuredCb.addEventListener("change", () => {
+          t.featured = featuredCb.checked;
+          updateSummary();
+        });
+        featuredLabel.appendChild(featuredCb);
+        featuredLabel.appendChild(document.createTextNode(" featured"));
+
+        const discardLabel = document.createElement("label");
+        const discardCb = document.createElement("input");
+        discardCb.type = "checkbox";
+        discardCb.checked = !!t.discard;
+        discardCb.style.marginLeft = "0.5rem";
+        discardCb.addEventListener("change", () => {
+          t.discard = discardCb.checked;
+          updateSummary();
+        });
+        discardLabel.appendChild(discardCb);
+        discardLabel.appendChild(document.createTextNode(" discard"));
+
+        right.appendChild(featuredLabel);
+        right.appendChild(discardLabel);
+
+        header.appendChild(left);
+        header.appendChild(right);
+
+        const textDiv = document.createElement("div");
+        textDiv.className = "tweet-text";
+        textDiv.textContent = t.text || "";
+
+        // Tag row: dropdown, current tags display, add-tag input
+        const tagRow = document.createElement("div");
+        tagRow.className = "tag-row";
+
+        const tagSelectLabel = document.createElement("label");
+        tagSelectLabel.textContent = "Tag: ";
+        const tagSelect = document.createElement("select");
+        const emptyOpt = document.createElement("option");
+        emptyOpt.value = "";
+        emptyOpt.textContent = "(none)";
+        tagSelect.appendChild(emptyOpt);
+
+        COMMON_TAGS.forEach(tag => {
+          const opt = document.createElement("option");
+          opt.value = tag;
+          opt.textContent = tag;
+          tagSelect.appendChild(opt);
+        });
+
+        tagSelect.addEventListener("change", () => {
+          const chosen = tagSelect.value;
+          if (chosen) {
+            // Remove "unclassified" once we apply any real tag
+            if (t.tags && t.tags.includes("unclassified") && chosen !== "unclassified") {
+              t.tags = t.tags.filter(tag => tag !== "unclassified");
+            }
+            if (!t.tags.includes(chosen)) {
+              t.tags.push(chosen);
+            }
+            renderTagBadges(t, badgesSpan);
+          }
+          tagSelect.value = "";
+        });
+
+        tagSelectLabel.appendChild(tagSelect);
+        tagRow.appendChild(tagSelectLabel);
+
+        const customTagInput = document.createElement("input");
+        customTagInput.type = "text";
+        customTagInput.placeholder = "Add custom tag";
+        const addTagBtn = document.createElement("button");
+        addTagBtn.type = "button";
+        addTagBtn.textContent = "Add";
+        addTagBtn.addEventListener("click", () => {
+          const val = customTagInput.value.trim();
+          if (val) {
+            // Remove "unclassified" when a real tag is added
+            if (t.tags && t.tags.includes("unclassified") && val !== "unclassified") {
+              t.tags = t.tags.filter(tag => tag !== "unclassified");
+            }
+            if (!t.tags.includes(val)) {
+              t.tags.push(val);
+            }
+            renderTagBadges(t, badgesSpan);
+          }
+          customTagInput.value = "";
+        });
+
+        tagRow.appendChild(customTagInput);
+        tagRow.appendChild(addTagBtn);
+
+        const badgesSpan = document.createElement("span");
+        badgesSpan.className = "badges";
+        renderTagBadges(t, badgesSpan);
+        tagRow.appendChild(badgesSpan);
+
+        card.appendChild(header);
+        card.appendChild(textDiv);
+        card.appendChild(tagRow);
+
+        container.appendChild(card);
+      }
+
+      document.getElementById("pageInfo").textContent =
+        `Page ${page} / ${Math.max(1, Math.ceil(total / pageSize))}`;
+      updateSummary();
+    }
+
+    function renderTagBadges(t, spanEl) {
+      ensureArrayTags(t);
+      const parts = t.tags.map(tag => `[${tag}]`);
+      if (parts.length === 0) {
+        spanEl.textContent = "(no tags)";
+      } else {
+        spanEl.textContent = parts.join(" ");
+      }
+    }
+
+    function updateSummary() {
+      const total = allData.tweets.length;
+      const featuredCount = allData.tweets.filter(t => t.featured).length;
+      const discardedCount = allData.tweets.filter(t => t.discard).length;
+      const taggedCount = allData.tweets.filter(t => (t.tags || []).some(tag => tag !== "unclassified")).length;
+
+      document.getElementById("summary").textContent =
+        `${filteredTweets.length} in view · ${featuredCount} featured · `
+        + `${discardedCount} discarded · ${taggedCount} with non-unclassified tags`;
+    }
+
+    function exportSelection() {
+      // we just dump allData back out; structure is unchanged
+      const text = JSON.stringify(allData, null, 2);
+      document.getElementById("exportOutput").value = text;
+      return text;
+    }
+
+    function downloadSelection() {
+      const text = exportSelection();
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "compendium_tagged_updated.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("applyFiltersBtn").addEventListener("click", applyFilters);
+    document.getElementById("prevPageBtn").addEventListener("click", () => {
+      if (page > 1) {
+        page--;
+        render();
+      }
+    });
+    document.getElementById("nextPageBtn").addEventListener("click", () => {
+      const totalPages = Math.max(1, Math.ceil(filteredTweets.length / pageSize));
+      if (page < totalPages) {
+        page++;
+        render();
+      }
+    });
+    document.getElementById("exportBtn").addEventListener("click", exportSelection);
+    document.getElementById("downloadBtn").addEventListener("click", downloadSelection);
+
+    loadData().catch(err => {
+      console.error(err);
+      alert("Error loading compendium_tagged.json (check console).");
+    });
+  </script>
+</body>
+</html>

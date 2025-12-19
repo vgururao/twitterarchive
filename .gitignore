@@ -1,0 +1,22 @@
+.DS_Store
+tree*.txt
+
+# raw twitter export viewer
+/Your archive.html
+/assets/
+
+# raw export media
+/data/tweets_media/
+/data/profile_media/
+/data/twitter_circle_tweet_media/
+/data/tweets.js
+/data/tweets-part*.js
+/data/tweets_normalized.jsonl
+
+# generated media in book
+/book/assets/media/
+
+# python junk
+__pycache__/
+*.pyc
+*.pyo

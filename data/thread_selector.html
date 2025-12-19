@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Thread &amp; Tweet Selector (Longlist)</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1rem 2rem;
+      background: #f7f7f7;
+    }
+    header {
+      margin-bottom: 1rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .controls input[type="text"] {
+      padding: 0.25rem 0.5rem;
+      min-width: 240px;
+    }
+    .thread-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .thread-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .thread-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    .thread-meta {
+      font-size: 0.8rem;
+      color: #555;
+    }
+    .thread-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .thread-flags {
+      font-size: 0.75rem;
+      color: #b04;
+    }
+    .thread-tweets {
+      margin-top: 0.3rem;
+      padding-left: 1.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+      border-left: 2px solid #eee;
+    }
+    .tweet-row {
+      font-size: 0.8rem;
+      margin-bottom: 0.3rem;
+    }
+    .pagination {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .pagination button {
+      padding: 0.25rem 0.6rem;
+    }
+    .export-area textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+    .export-area {
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Thread &amp; Tweet Selector (Longlist)</h1>
+    <p>
+      This view is restricted to the merged longlist of candidate threads
+      from <code>selection_longlist.json</code>. Use it to prune to a shortlist.
+    </p>
+  </header>
+
+  <section class="controls">
+    <div>
+      <label>Search text:
+        <input type="text" id="searchInput" placeholder="Filter by root tweet text...">
+      </label>
+    </div>
+    <div>
+      <label>Min tweets:
+        <input type="number" id="minTweetsInput" value="1" min="1" style="width:4rem;">
+      </label>
+    </div>
+    <div>
+      <label>Page size:
+        <input type="number" id="pageSizeInput" value="25" min="5" style="width:4rem;">
+      </label>
+    </div>
+    <div>
+      <button id="applyFiltersBtn">Apply filters</button>
+    </div>
+    <div>
+      <span id="summary"></span>
+    </div>
+  </section>
+
+  <section class="thread-list" id="threadList"></section>
+
+  <div class="pagination">
+    <button id="prevPageBtn">&laquo; Prev</button>
+    <span id="pageInfo"></span>
+    <button id="nextPageBtn">Next &raquo;</button>
+  </div>
+
+  <section class="export-area">
+    <h2>Export Selection</h2>
+    <p>
+      Checked <strong>Chapter</strong> boxes become <code>chapter_threads</code>.
+      Checked tweet boxes become <code>compendium_tweets</code>.
+    </p>
+    <button id="exportBtn">Generate selection JSON</button>
+    <button id="downloadBtn">Download selection_final.json</button>
+    <textarea id="exportOutput" readonly></textarea>
+  </section>
+
+  <script>
+    const THREADS_URL = "threads_ui.json";
+    const LONGLIST_URL = "selection_longlist.json";
+
+    let allThreads = [];      // all 2672 threads from threads_ui.json
+    let longlistIds = new Set(); // 150 thread_ids from selection_longlist.json
+    let filteredThreads = []; // only threads in longlist, then filtered by UI
+    let page = 1;
+    let pageSize = 25;
+
+    // Selection state (preloaded from selection_longlist.json)
+    const chapterThreads = new Set();
+    const compendiumTweets = new Set();
+
+    async function loadData() {
+      // Load all threads
+      const threadsRes = await fetch(THREADS_URL);
+      if (!threadsRes.ok) {
+        throw new Error("Failed to load " + THREADS_URL);
+      }
+      const threadsData = await threadsRes.json();
+
+      // Load longlist selection
+      const longlistRes = await fetch(LONGLIST_URL);
+      if (!longlistRes.ok) {
+        throw new Error("Failed to load " + LONGLIST_URL);
+      }
+      const longlist = await longlistRes.json();
+
+      // Initialize longlistIds and preselection
+      (longlist.chapter_threads || []).forEach(id => longlistIds.add(id));
+      (longlist.compendium_tweets || []).forEach(id => compendiumTweets.add(id));
+      (longlist.chapter_threads || []).forEach(id => chapterThreads.add(id));
+
+      // Restrict threads to longlist only
+      allThreads = threadsData.filter(t => longlistIds.has(t.thread_id));
+
+      filteredThreads = allThreads.slice();
+      render();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById("searchInput").value.toLowerCase().trim();
+      const minTweets = parseInt(document.getElementById("minTweetsInput").value, 10) || 1;
+
+      filteredThreads = allThreads.filter(t => {
+        if (t.num_tweets < minTweets) return false;
+        if (search) {
+          const rootText = (t.tweets[0]?.full_text || "").toLowerCase();
+          if (!rootText.includes(search)) return false;
+        }
+        return true;
+      });
+      page = 1;
+      render();
+    }
+
+    function render() {
+      pageSize = parseInt(document.getElementById("pageSizeInput").value, 10) || 25;
+      const total = filteredThreads.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (page > totalPages) page = totalPages;
+
+      const startIdx = (page - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+
+      const container = document.getElementById("threadList");
+      container.innerHTML = "";
+
+      for (let i = startIdx; i < endIdx; i++) {
+        const t = filteredThreads[i];
+        const threadId = t.thread_id;
+        const isChapterSelected = chapterThreads.has(threadId);
+
+        const card = document.createElement("div");
+        card.className = "thread-card";
+
+        const header = document.createElement("div");
+        header.className = "thread-header";
+
+        const left = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "thread-title";
+        const rootText = (t.tweets[0]?.full_text || "").split("\n").join(" ");
+        title.textContent = rootText.length > 140 ? rootText.slice(0, 137) + "..." : rootText;
+
+        const meta = document.createElement("div");
+        meta.className = "thread-meta";
+        meta.textContent = `ID: ${threadId} · ${t.num_tweets} tweets · ❤️ ${t.max_favorites} · 🔁 ${t.max_retweets} · ${t.start_created_at || ""}`;
+
+        left.appendChild(title);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+
+        const chapterLabel = document.createElement("label");
+        const chapterCheckbox = document.createElement("input");
+        chapterCheckbox.type = "checkbox";
+        chapterCheckbox.checked = isChapterSelected;
+        chapterCheckbox.addEventListener("change", () => {
+          if (chapterCheckbox.checked) {
+            chapterThreads.add(threadId);
+          } else {
+            chapterThreads.delete(threadId);
+          }
+        });
+        chapterLabel.appendChild(chapterCheckbox);
+        chapterLabel.appendChild(document.createTextNode(" Chapter"));
+
+        right.appendChild(chapterLabel);
+
+        header.appendChild(left);
+        header.appendChild(right);
+
+        const flags = document.createElement("div");
+        flags.className = "thread-flags";
+        const flagTexts = [];
+        if (t.has_external_dependency) flagTexts.push("EXTERNAL DEPENDENCY");
+        if (t.has_external_reply) flagTexts.push("external reply");
+        if (t.has_external_quote) flagTexts.push("external quote");
+        flags.textContent = flagTexts.join(" · ");
+
+        const tweetsDiv = document.createElement("div");
+        tweetsDiv.className = "thread-tweets";
+
+        t.tweets.forEach((tw, idx) => {
+          const row = document.createElement("div");
+          row.className = "tweet-row";
+
+          const tweetCheckbox = document.createElement("input");
+          tweetCheckbox.type = "checkbox";
+          const tid = tw.id_str;
+          tweetCheckbox.checked = compendiumTweets.has(tid);
+          tweetCheckbox.addEventListener("change", () => {
+            if (tweetCheckbox.checked) {
+              compendiumTweets.add(tid);
+            } else {
+              compendiumTweets.delete(tid);
+            }
+          });
+
+          const label = document.createElement("label");
+          label.appendChild(tweetCheckbox);
+          label.appendChild(
+            document.createTextNode(
+              ` [${idx + 1}] `
+            )
+          );
+          const textSpan = document.createElement("span");
+          textSpan.textContent = tw.full_text ? tw.full_text.replace(/\s+/g, " ") : "";
+          label.appendChild(textSpan);
+
+          row.appendChild(label);
+          tweetsDiv.appendChild(row);
+        });
+
+        card.appendChild(header);
+        if (flagTexts.length > 0) {
+          card.appendChild(flags);
+        }
+        card.appendChild(tweetsDiv);
+        container.appendChild(card);
+      }
+
+      document.getElementById("pageInfo").textContent =
+        `Page ${page} / ${Math.max(1, Math.ceil(total / pageSize))}`;
+      document.getElementById("summary").textContent =
+        `${total} threads in view · ${chapterThreads.size} chapter threads selected · ${compendiumTweets.size} compendium tweets selected`;
+    }
+
+    function exportSelection() {
+      const result = {
+        chapter_threads: Array.from(chapterThreads),
+        compendium_tweets: Array.from(compendiumTweets)
+      };
+      const text = JSON.stringify(result, null, 2);
+      document.getElementById("exportOutput").value = text;
+      return text;
+    }
+
+    function downloadSelection() {
+      const text = exportSelection();
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "selection_final.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("applyFiltersBtn").addEventListener("click", applyFilters);
+    document.getElementById("prevPageBtn").addEventListener("click", () => {
+      if (page > 1) {
+        page--;
+        render();
+      }
+    });
+    document.getElementById("nextPageBtn").addEventListener("click", () => {
+      const totalPages = Math.max(1, Math.ceil(filteredThreads.length / pageSize));
+      if (page < totalPages) {
+        page++;
+        render();
+      }
+    });
+    document.getElementById("exportBtn").addEventListener("click", exportSelection);
+    document.getElementById("downloadBtn").addEventListener("click", downloadSelection);
+
+    // Initial load
+    loadData().catch(err => {
+      console.error(err);
+      alert("Error loading threads_ui.json or selection_longlist.json (check console).");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Compendium Tweet Selector</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1rem 2rem;
+      background: #f7f7f7;
+    }
+    header {
+      margin-bottom: 1rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .controls input[type="text"] {
+      padding: 0.25rem 0.5rem;
+      min-width: 240px;
+    }
+    .controls input[type="number"] {
+      padding: 0.2rem 0.4rem;
+      width: 5rem;
+    }
+    .tweet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .tweet-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      font-size: 0.9rem;
+    }
+    .tweet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+    .tweet-meta {
+      font-size: 0.8rem;
+      color: #555;
+    }
+    .tweet-text {
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .tweet-badges {
+      font-size: 0.75rem;
+      color: #b04;
+      margin-top: 0.2rem;
+    }
+    .pagination {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .pagination button {
+      padding: 0.25rem 0.6rem;
+    }
+    .export-area {
+      margin-top: 1.5rem;
+    }
+    .export-area textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Compendium Tweet Selector</h1>
+    <p>
+      Selecting from merged candidates:
+      <code>smugisms_seeds.json</code> + <code>singleton_candidates.json</code>.
+      Smugisms are pre-selected.
+    </p>
+  </header>
+
+  <section class="controls">
+    <div>
+      <label>Search text:
+        <input type="text" id="searchInput" placeholder="Filter by tweet text...">
+      </label>
+    </div>
+    <div>
+      <label>Min score (likes + RTs):
+        <input type="number" id="minScoreInput" value="0" min="0">
+      </label>
+    </div>
+    <div>
+      <label>Include replies:
+        <input type="checkbox" id="includeRepliesInput" checked>
+      </label>
+    </div>
+    <div>
+      <label>Page size:
+        <input type="number" id="pageSizeInput" value="50" min="5">
+      </label>
+    </div>
+    <div>
+      <button id="applyFiltersBtn">Apply filters</button>
+    </div>
+    <div id="summary"></div>
+  </section>
+
+  <section class="tweet-list" id="tweetList"></section>
+
+  <div class="pagination">
+    <button id="prevPageBtn">&laquo; Prev</button>
+    <span id="pageInfo"></span>
+    <button id="nextPageBtn">Next &raquo;</button>
+  </div>
+
+  <section class="export-area">
+    <h2>Export Compendium Selection</h2>
+    <p>
+      Checked tweets become <code>compendium_tweets</code>. The JSON is suitable
+      to merge into your book generator alongside <code>selection_final.json</code>.
+    </p>
+    <button id="exportBtn">Generate JSON</button>
+    <button id="downloadBtn">Download compendium_selection.json</button>
+    <textarea id="exportOutput" readonly></textarea>
+  </section>
+
+  <script>
+    const SINGLES_URL = "singles_ui.json";
+
+    let allTweets = [];
+    let filteredTweets = [];
+    let page = 1;
+    let pageSize = 50;
+
+    // Selection state: tweet IDs
+    const compendiumTweets = new Set();
+
+    async function loadData() {
+      const res = await fetch(SINGLES_URL);
+      if (!res.ok) {
+        throw new Error("Failed to load " + SINGLES_URL);
+      }
+      const data = await res.json();
+      allTweets = data;
+
+      // Pre-select smugisms
+      allTweets.forEach(t => {
+        if (t.from_smugisms) {
+          compendiumTweets.add(t.id_str);
+        }
+      });
+
+      filteredTweets = allTweets.slice();
+      render();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById("searchInput").value.toLowerCase().trim();
+      const minScore = parseInt(document.getElementById("minScoreInput").value, 10) || 0;
+      const includeReplies = document.getElementById("includeRepliesInput").checked;
+
+      filteredTweets = allTweets.filter(t => {
+        if (t.score < minScore) return false;
+        if (!includeReplies && t.is_reply) return false;
+        if (search) {
+          const text = (t.text || "").toLowerCase();
+          if (!text.includes(search)) return false;
+        }
+        return true;
+      });
+
+      page = 1;
+      render();
+    }
+
+    function render() {
+      pageSize = parseInt(document.getElementById("pageSizeInput").value, 10) || 50;
+      const total = filteredTweets.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (page > totalPages) page = totalPages;
+
+      const startIdx = (page - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+
+      const container = document.getElementById("tweetList");
+      container.innerHTML = "";
+
+      for (let i = startIdx; i < endIdx; i++) {
+        const t = filteredTweets[i];
+        const tid = t.id_str;
+
+        const card = document.createElement("div");
+        card.className = "tweet-card";
+
+        const header = document.createElement("div");
+        header.className = "tweet-header";
+
+        const left = document.createElement("div");
+        const meta = document.createElement("div");
+        meta.className = "tweet-meta";
+        meta.textContent =
+          `ID: ${tid} · ${t.created_at || ""} · ❤️ ${t.favorite_count} · `
+          + `🔁 ${t.retweet_count} · score ${t.score}`;
+
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = compendiumTweets.has(tid);
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) compendiumTweets.add(tid);
+          else compendiumTweets.delete(tid);
+          updateSummary();
+        });
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(" Include"));
+        right.appendChild(label);
+
+        header.appendChild(left);
+        header.appendChild(right);
+
+        const textDiv = document.createElement("div");
+        textDiv.className = "tweet-text";
+        textDiv.textContent = t.text || "";
+
+        const badgesDiv = document.createElement("div");
+        badgesDiv.className = "tweet-badges";
+        const badges = [];
+        if (t.from_smugisms) badges.push("smugism");
+        if (t.is_reply) badges.push("reply");
+        if (badges.length > 0) {
+          badgesDiv.textContent = badges.join(" · ");
+        }
+
+        card.appendChild(header);
+        card.appendChild(textDiv);
+        if (badges.length > 0) {
+          card.appendChild(badgesDiv);
+        }
+
+        container.appendChild(card);
+      }
+
+      document.getElementById("pageInfo").textContent =
+        `Page ${page} / ${Math.max(1, Math.ceil(total / pageSize))}`;
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const total = filteredTweets.length;
+      const selected = compendiumTweets.size;
+      document.getElementById("summary").textContent =
+        `${total} tweets in view · ${selected} selected for compendium`;
+    }
+
+    function exportSelection() {
+      const result = {
+        compendium_tweets: Array.from(compendiumTweets)
+      };
+      const text = JSON.stringify(result, null, 2);
+      document.getElementById("exportOutput").value = text;
+      return text;
+    }
+
+    function downloadSelection() {
+      const text = exportSelection();
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "compendium_selection.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("applyFiltersBtn").addEventListener("click", applyFilters);
+    document.getElementById("prevPageBtn").addEventListener("click", () => {
+      if (page > 1) {
+        page--;
+        render();
+      }
+    });
+    document.getElementById("nextPageBtn").addEventListener("click", () => {
+      const totalPages = Math.max(1, Math.ceil(filteredTweets.length / pageSize));
+      if (page < totalPages) {
+        page++;
+        render();
+      }
+    });
+    document.getElementById("exportBtn").addEventListener("click", exportSelection);
+    document.getElementById("downloadBtn").addEventListener("click", downloadSelection);
+
+    loadData().catch(err => {
+      console.error(err);
+      alert("Error loading singles_ui.json (check console).");
+    });
+  </script>
+</body>
+</html>

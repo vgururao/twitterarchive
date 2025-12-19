@@ -1,0 +1,353 @@
+Loaded 2672 threads from threads_data.jsonl
+Indexed 28333 tweet->thread mappings
+Thread-of-threads contains 92 tweets
+Resolved 92 of 92 TOT tweets to full records
+
+Distinct status IDs extracted from URLs: 89
+Quoted-like threads that resolve to your ≥4-tweet threads: 86
+Tweets in thread-of-threads with no URLs: 0
+
+  1. thread_id=1056603055309778944 via status_id=1056603055309778944
+     root_tweet_id=1056603055309778944
+     text: In practice “thinking for yourself” =  Being redpilled: Leaving large, loose tribe for small, tight one (60%)  Ignorance-veiling: Maintai...
+
+  2. thread_id=1058051052975546368 via status_id=1058051052975546368
+     root_tweet_id=1058051055768895488
+     text: Also woke up kinda convinced it’s game over for climate change. Energy transition and dematerialization are still crucial, but things are...
+
+  3. thread_id=1059210078262190081 via status_id=1059210078262190081
+     root_tweet_id=1060977978753003522
+     text: @threadreaderapp unroll
+
+  4. thread_id=1074890050213621760 via status_id=1074890050213621760
+     root_tweet_id=1074890053610987520
+     text: There is a particular kind of motte and bailey maneuver where criticism of the risky part (topic/content) is redirected to an innocent-fa...
+
+  5. thread_id=1090348697831976960 via status_id=1090348697831976960
+     root_tweet_id=1090348697831976960
+     text: I'm becoming more snobby about work than I can probably afford to be from a financial perspective. Like Sherlock Holmes, I require "singu...
+
+  6. thread_id=1091792315025215488 via status_id=1091792315025215488
+     root_tweet_id=1091792317025898496
+     text: In the history of innovation revolutions, after the pioneer stage but before the institutional phase, you usually have a “blue-collar inn...
+
+  7. thread_id=1123260313875374080 via status_id=1123260313875374080
+     root_tweet_id=1123260313875374080
+     text: 99% of the questions people ask in their 20s and early 30s are roughly the same seemingly “important” ones everybody has always asked at ...
+
+  8. thread_id=1125119314611171328 via status_id=1125119314611171328
+     root_tweet_id=1125119314611171328
+     text: A megatrend hypothesis inspired by several microtrend that I think are related:   a) waldenponding   b) rise of heavy duty information ma...
+
+  9. thread_id=1157733517100404736 via status_id=1157733517100404736
+     root_tweet_id=1157733517100404736
+     text: Everytime I tweet non-trivial thoughts, I get a flood of links/pointers to work by others that people think I ought to be familiar with/c...
+
+ 10. thread_id=1158049104355704832 via status_id=1158049104355704832
+     root_tweet_id=1158049104355704832
+     text: Been reflecting on wealth and success (in conventional sense, which may involve some combination of wealth, fame, accomplishment, histori...
+
+ 11. thread_id=1175999844101439488 via status_id=1175999844101439488
+     root_tweet_id=1175999844101439488
+     text: Here’s a spectrum of “memory” genres  1. Autobiography 2. Family history 3. Personal memoir 4. Subcultural history 5. Public life memoir ...
+
+ 12. thread_id=1195789557465153536 via status_id=1195789557465153536
+     root_tweet_id=1195789557465153536
+     text: I was briefly calling myself an independent researcher: somebody who self-funds spec R&amp;D on their own ideas. In theory it’s something...
+
+ 13. thread_id=1195937380210921472 via status_id=1195937380210921472
+     root_tweet_id=1195937380210921472
+     text: Thinking about my thread this morning on why independent research is hard, and what it would take to make it possible, and whether it’s w...
+
+ 14. thread_id=1205320897495625729 via status_id=1205320897495625729
+     root_tweet_id=1205320897495625729
+     text: Candid political opinions thread. One per like. Limit 100.
+
+ 15. thread_id=1244454990376103936 via status_id=1244454990376103936
+     root_tweet_id=1244454990376103936
+     text: Secular shifts:  Maskchic Fat households Dedensification 2x WHM 0.5x business travel Virus-limited economics Last-mile automation Suburba...
+
+ 16. thread_id=1246565978021842944 via status_id=1246565978021842944
+     root_tweet_id=1286523497473142785
+     text: Next up: Marshall Plan by Benn Steil. Feels like an appropriate sequel to Freedom’s Forge https://t.co/kaI4j7t9oz
+
+ 17. thread_id=1256739322780241921 via status_id=1256739322780241921
+     root_tweet_id=1256739322780241921
+     text: Very large quantities of concentrated capital can bend truth rays and warp epistimology and ontology. There is a financial lending effect...
+
+ 18. thread_id=1267315054451408896 via status_id=1267315054451408896
+     root_tweet_id=1267315054451408896
+     text: Been thinking a lot about the API as a metaphor and the peace above vs the war below (both Covid and protests/riots/looting)  API as stor...
+
+ 19. thread_id=1272186524369424385 via status_id=1272186524369424385
+     root_tweet_id=1272186524369424385
+     text: Stuff you learned and forgot feels like rent paid. You lived in it for a while but are now left with no equity in it. Most schooling only...
+
+ 20. thread_id=1277262959828283392 via status_id=1277262959828283392
+     root_tweet_id=1277262959828283392
+     text: The word “invest” has 2 distinct meanings in relation to capital:  Invest (1): Spend money to build a capability. Example: a bridge, a fa...
+
+ 21. thread_id=1277760202951897089 via status_id=1277760202951897089
+     root_tweet_id=1277760202951897089
+     text: Culture war wrangling has unfortunately become a key element in my consulting. It is now the 4th, and youngest manifestation of bullshit ...
+
+ 22. thread_id=1277996104915619841 via status_id=1277996104915619841
+     root_tweet_id=1277996104915619841
+     text: Grifts are undertheorized, and too often conflated with long cons, scams, frauds and other more blatant soft crimes. Lemme offer a defini...
+
+ 23. thread_id=1279532354499821568 via status_id=1279532354499821568
+     root_tweet_id=1279532354499821568
+     text: The older I get the more it sinks in that 90% of effectiveness is just taking a thing seriously enough. That translates to just wanting t...
+
+ 24. thread_id=1282193892687806465 via status_id=1282193892687806465
+     root_tweet_id=1282193892687806465
+     text: So... I’ve been trying to find supporting arguments for my intuition that even though death rate is far lower than Spanish Flu (2%) and E...
+
+ 25. thread_id=1283238238505693184 via status_id=1283238238505693184
+     root_tweet_id=1284676234996146181
+     text: Adding this thought here.  There’s an aspect of inability to play here, as a core culture-warrior trait. They can do sports, and play cat...
+
+ 26. thread_id=1294757871863787520 via status_id=1294757871863787520
+     root_tweet_id=1294757871863787520
+     text: Can’t recall where I saw this (help?) but rideshare drivers typically don’t work longer during surge to maximize revenue while there’s mo...
+
+ 27. thread_id=1297743621777580034 via status_id=1297743621777580034
+     root_tweet_id=1297743621777580034
+     text: The longer I spend online, the more true this feels. A big consequence of social atomization is that increasing numbers of people lack a ...
+
+ 28. thread_id=1300671637486841857 via status_id=1300671637486841857
+     root_tweet_id=1428537801360904192
+     text: 3d printed art subthread https://t.co/OcOVKRjqwe
+
+ 29. thread_id=1302083532022362112 via status_id=1302083532022362112
+     root_tweet_id=1302083532022362112
+     text: Doubt-impedance matching. To persuade smart people, you have to start from a posture of genuine doubt that matches theirs and work both o...
+
+ 30. thread_id=1305573930334208000 via status_id=1305573930334208000
+     root_tweet_id=1305573930334208000
+     text: I've heard of 3 hypothesized "basic drives" for living things: seek pleasure, avoid pain, minimize energy. I don't know that any of them ...
+
+ 31. thread_id=1307846068445478913 via status_id=1307846068445478913
+     root_tweet_id=1307846068445478913
+     text: If something is worth doing for free, it’s worth doing nerd-out obsessively-compulsively for free.  “Free” implies the purest kind of sur...
+
+ 32. thread_id=1309988191114416128 via status_id=1309988191114416128
+     root_tweet_id=1309988191114416128
+     text: Observation: psychopaths are often charming/reassuring and can put you at ease in a trusting, vulnerable state.  Hypothesis A: Psychopath...
+
+ 33. thread_id=1310635395005071360 via status_id=1310635395005071360
+     root_tweet_id=1310635395005071360
+     text: I can no longer remember what the topline narrative of the NYT was like back in 2014, before the current creeping mix of trump-kremlinolo...
+
+ 34. thread_id=1310692412537225217 via status_id=1310692412537225217
+     root_tweet_id=1310692412537225217
+     text: We need a  verb meaning “doing science” in elemental, non-institutional, non-bureaucratic sense. Something like “investigating”  Not “res...
+
+ 35. thread_id=1310769794665177088 via status_id=1310769794665177088
+     root_tweet_id=1322964630759616512
+     text: . https://t.co/ONBRAClSkb
+
+ 36. thread_id=1314983875546767362 via status_id=1314983875546767362
+     root_tweet_id=1314983875546767362
+     text: It really is very hard to care about money past the point it stops being a source of immediate anxiety. People capable of caring enough t...
+
+ 37. thread_id=1316168198866132992 via status_id=1316168198866132992
+     root_tweet_id=1316168198866132992
+     text: Prioritization is the communism of attention management 😖  Do or do not. There is no priority.  Once you make a list of things that need ...
+
+ 38. thread_id=1318411552098111489 via status_id=1318411552098111489
+     root_tweet_id=1318411552098111489
+     text: Hmm. Can any long-arc extended universe type stuff be traced to the 1920s? Especially in genre fiction?   Considering a hypothesis that i...
+
+ 39. thread_id=1319819179491381248 via status_id=1319819179491381248
+     root_tweet_id=1319819179491381248
+     text: long-term thinking makes people unhappy because it almost necessarily means they’re thinking about big problems  the only future thing yo...
+
+ 40. thread_id=1322666563107917824 via status_id=1322666563107917824
+     root_tweet_id=1322666563107917824
+     text: You can comfortably shake hands with anyone between 0.5x to 2x your height, but beyond that, it starts to get tricky. If people’s heights...
+
+ 41. thread_id=1324124260382568454 via status_id=1324124260382568454
+     root_tweet_id=1324793959558844417
+     text: Lemme index a few topics here for future processing:  1. The charge that Trump was the victim of "unfair" double standards throughout his...
+
+ 42. thread_id=1329875894605758464 via status_id=1329875894605758464
+     root_tweet_id=1329875894605758464
+     text: The Yak Collective @yak_collective has been doing a futures project called Astonishing Stories, led by @SachinB91 and @WabiSabiFutures to...
+
+ 43. thread_id=1330917074500141057 via status_id=1330917074500141057
+     root_tweet_id=1330917074500141057
+     text: People really like to have both sides of conversations. You’d think this is a sort of stylized performance element but it isn’t. Many peo...
+
+ 44. thread_id=1331673021367480320 via status_id=1331673021367480320
+     root_tweet_id=1369715728589320192
+     text: 🤔 https://t.co/lSb3Z96giU
+
+ 45. thread_id=1333143547462131714 via status_id=1333143547462131714
+     root_tweet_id=1333143547462131714
+     text: 1. Management by conferences 2. Management by 1:1 meeting 3. Management by walking around  4. Management by slide deck 5. Management by w...
+
+ 46. thread_id=1333473709659570176 via status_id=1333473709659570176
+     root_tweet_id=1333473709659570176
+     text: US history as synecdoche for world history really begins in 1854. Not coincidentally that was peak UK too.  Everything before that is mos...
+
+ 47. thread_id=1334233827657605131 via status_id=1334233827657605131
+     root_tweet_id=1334934833982701568
+     text: I haz digital inputs. These teeny switches were annoying to insert. I’m working through the Elegoo mega 2560 kit manual, one experiment e...
+
+ 48. thread_id=1338215386416701441 via status_id=1338237296164814850
+     root_tweet_id=1338215386416701441
+     text: AI personhood would be nice, but is a sideshow. What we need is data model personhood.   Which is kinda the same as instrumentation perso...
+
+ 49. thread_id=1341099812687466496 via status_id=1341099812687466496
+     root_tweet_id=1341099812687466496
+     text: wish there was a way to see financial damage the way you can see maps of forest fires or bomb damage from wars... covid is such a physica...
+
+ 50. thread_id=1344414044027981825 via status_id=1344414044027981825
+     root_tweet_id=1344433514159112192
+     text: Simple example: my @threadapalooza thread this year is to do 99 jokes/micro-stories based on specific prompt words from people. It’s not ...
+
+ 51. thread_id=1350300376205938688 via status_id=1350300376205938688
+     root_tweet_id=1350300376205938688
+     text: aesthetics seems to be the entry drug of conservatism everywhere in the world 🤔
+
+ 52. thread_id=1353582663769055237 via status_id=1353582663769055237
+     root_tweet_id=1464103996528869384
+     text: 10 months later… yeah, this is still at 10%… vaccines seem capable of racing the virus, but people seem capable of throwing away the vacc...
+
+ 53. thread_id=1354182082927464450 via status_id=1354182082927464450
+     root_tweet_id=1464711981458354177
+     text: Update 10 months later… yeah re-enchantment is toast as a usefully general concept. It was promising but too loaded with reactionary prim...
+
+ 54. thread_id=1360037779766267906 via status_id=1360037779766267906
+     root_tweet_id=1360037779766267906
+     text: In practice, the real alternative to cancel culture is usually know-your-place culture for the masses. Civil-debate-culture is not an act...
+
+ 55. thread_id=1363189413824524289 via status_id=1363189413824524289
+     root_tweet_id=1363189413824524289
+     text: I hadn’t seen this critique of superintelligence before. Interesting. It lands roughly where I did but via a different route (his term is...
+
+ 56. thread_id=1369517402623406081 via status_id=1369517402623406081
+     root_tweet_id=1369517402623406081
+     text: Feels like Sayre’s law increasingly applies to the world at large.  “Academic politics is the most vicious and bitter form of politics, b...
+
+ 57. thread_id=1379233874136297473 via status_id=1379233874136297473
+     root_tweet_id=1512221941200875525
+     text: Whew and woohoo… after 12 painful solder joins of 28 awg delicate wire, ABTF is finally rigged and running. Need to get the heat shrink o...
+
+ 58. thread_id=1381087092147593216 via status_id=1381087092147593216
+     root_tweet_id=1477106380909678596
+     text: Examples: Cobra Kai, The Expanse….  Not a single missed beat or sloppy discursive scene. No spezzatura. No weird narrative conceits overi...
+
+ 59. thread_id=1387985032594161666 via status_id=1387985032594161666
+     root_tweet_id=1387985032594161666
+     text: What’s percent of your income is return on risk as opposed to compensation for effort?  I don’t mean in a tax sense of capital gains. I m...
+
+ 60. thread_id=1390492518668591111 via status_id=1390492518668591111
+     root_tweet_id=1390492518668591111
+     text: Just did an analysis of 10 years of half-assed self-publishing. Executive summary: https://t.co/ipn7s5U2oB
+
+ 61. thread_id=1391078635193262080 via status_id=1391078635193262080
+     root_tweet_id=1391078635193262080
+     text: So ebooks vs print books have been a wild ride in the last 15y. Don’t have the numbers on hand, but after initial rapid rise, print book ...
+
+ 62. thread_id=1395814913482756098 via status_id=1395814913482756098
+     root_tweet_id=1413585630966083592
+     text: Ok, much to report. I really leveled up my soldering game today 😎. First up, let’s try this tip tinner stuff. It’s a hard-packed powder… ...
+
+ 63. thread_id=1396571471749677059 via status_id=1396571471749677059
+     root_tweet_id=1396617223075074049
+     text: A lot of this comes down to being a bad influence in the right places.   Being conscientious everywhere means either being a successful p...
+
+ 64. thread_id=1401253631073034241 via status_id=1401253631073034241
+     root_tweet_id=1401253631073034241
+     text: I once attended a talk about “coding kata.” I don’t think the idea ever took off. It works even worse with hardware.   Something about en...
+
+ 65. thread_id=1403448693982863360 via status_id=1403448693982863360
+     root_tweet_id=1403448693982863360
+     text: True or false?  Scams are more likely to be vertically integrated.
+
+ 66. thread_id=1404220201852293120 via status_id=1404220201852293120
+     root_tweet_id=1404233850964758532
+     text: Whenever I post sociological theories like this, people object or point out that getting a SO relationship should be part of the model, i...
+
+ 67. thread_id=1404264190131331075 via status_id=1404264190131331075
+     root_tweet_id=1404264190131331075
+     text: Herzog-Veblen principle: Wildernesses are murderous but lazy places. Savagery does not respect effort. Visible effort marks you as food. ...
+
+ 68. thread_id=1404594135261016067 via status_id=1404594135261016067
+     root_tweet_id=1404594135261016067
+     text: There’s a theory that the ability to have painful conversations in large groups is some sort of valuable and advanced skill that we must ...
+
+ 69. thread_id=1404688678568349705 via status_id=1404688678568349705
+     root_tweet_id=1404688678568349705
+     text: People always say “smartest people” and “artificial intelligence” in the same breath 🤔  There may be a slight circularity problem in this...
+
+ 70. thread_id=1405588247556739076 via status_id=1405588247556739076
+     root_tweet_id=1407027920959262723
+     text: Follow-on thread https://t.co/cWwz7nCp5w
+
+ 71. thread_id=1407009538218205189 via status_id=1407009538218205189
+     root_tweet_id=1407009538218205189
+     text: When a proto-network is strongly under your control/influence (eg network of stores you can release a product in, large group of employee...
+
+ 72. thread_id=1407355631267319810 via status_id=1407355631267319810
+     root_tweet_id=1407355631267319810
+     text: What’s the opposite of a network effect?   Not merely a negative network effect like a contagion or failure cascade. That’s just point of...
+
+ 73. thread_id=1408620849410691075 via status_id=1408620849410691075
+     root_tweet_id=1408620849410691075
+     text: What’s the cheapest scientific instrument that can get an average amateur to the bleeding edge of discovery work? So not just scutwork th...
+
+ 74. thread_id=1414311392581091329 via status_id=1414311392581091329
+     root_tweet_id=1414311392581091329
+     text: Making a meta-thread of embedded adventures with arduino, beaglebone blue, RPi, and any other boards I end up buying.
+
+ 75. thread_id=1421268674313220102 via status_id=1421268674313220102
+     root_tweet_id=1421268674313220102
+     text: I've been noodling on an idea for a while that I've been reluctant to do a thread on for... reasons that will become obvious, but let's y...
+
+ 76. thread_id=1457449043164991488 via status_id=1457449043164991488
+     root_tweet_id=1459041325244825600
+     text: Own = still stock thinking, the flow equivalent might be “execute” (contracts, instructions, orders) so we get rwx on global computer 🤔  ...
+
+ 77. thread_id=1475525176875905025 via status_id=1475525176875905025
+     root_tweet_id=1475525176875905025
+     text: By analogy to “Big Data is when it’s cheaper to store data than decide what to do with it,” (George Dyson)   you could say   “Big Frontie...
+
+ 78. thread_id=1508147225729273856 via status_id=1508147225729273856
+     root_tweet_id=1508147225729273856
+     text: The expert’s trilemma   Express doubt you feel and get lynched now  Express certainty you don’t feel, turn out wrong, get lynched later  ...
+
+ 79. thread_id=1511497620958580738 via status_id=1511497620958580738
+     root_tweet_id=1511497620958580738
+     text: Some people seem to have 100% interests and 0% curiosities. You can be a good advocate with that personality, but not really a researcher.
+
+ 80. thread_id=1514631799418212355 via status_id=1514631799418212355
+     root_tweet_id=1514631799418212355
+     text: Football stadium is a better metaphor for twitter than public square. It’s just that the field itself is shrunken to nothing and the spec...
+
+ 81. thread_id=1529870394034794499 via status_id=1529870394034794499
+     root_tweet_id=1529994607324327936
+     text: Prompt thread of examples https://t.co/96mh7trOsB
+
+ 82. thread_id=1572217871803256832 via status_id=1572217871803256832
+     root_tweet_id=1572217871803256832
+     text: Bureaucracy at its best is the art of ensuring work never flows backwards  in a system where nobody can see very far, by overengineering ...
+
+ 83. thread_id=1574830055233986560 via status_id=1574830055233986560
+     root_tweet_id=1574830055233986560
+     text: The insight industry has been running in zombie mode on pure momentum for the last few years. Insights without a grand narrative context ...
+
+ 84. thread_id=770722802957549568 via status_id=770722802957549568
+     root_tweet_id=770722802957549568
+     text: The true antithesis of 0 to 1 is not 1 to n; that's a strawman. The true antithesis is ε to δ: the evolutionary adjacent possible...
+
+ 85. thread_id=915302752720322560 via status_id=915302752720322560
+     root_tweet_id=915302752720322560
+     text: 1/ I'd like to make up a theory of intelligence based on a 2-element ontology: boundary and interior intelligence
+
+ 86. thread_id=971454478825046016 via status_id=971454478825046016
+     root_tweet_id=971454478825046016
+     text: 1/ I’ve concluded there are 4 types of relationships meatspace communities can have with digitization, which I call a) Circled Wagons, b)...
+
