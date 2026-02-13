@@ -218,13 +218,18 @@ def render_quote_boxes(raw: dict, tweets_by_id: dict):
     return "\n".join([b for b in boxes if b])
 
 
-def auto_link_text(text: str, raw: dict):
+def auto_link_text(text: str, raw: dict, url_titles: dict = None, url_overrides: dict = None):
     """
-    Replace t.co URLs with <a href="expanded_url">display_url</a>.
+    Replace t.co URLs with <a href="expanded_url">title or display_url</a>.
+    Applies URL overrides for hijacked/broken links.
     Preserve line breaks. No markdown, just simple HTML.
     """
     if not text:
         return ""
+    if url_titles is None:
+        url_titles = {}
+    if url_overrides is None:
+        url_overrides = {}
     text_html = text
 
     entities = (raw or {}).get("entities") or {}
@@ -233,9 +238,21 @@ def auto_link_text(text: str, raw: dict):
         short = u.get("url")
         expanded = u.get("expanded_url") or short
         display = u.get("display_url") or expanded
+        # Apply override if present
+        override = url_overrides.get(expanded)
+        if override:
+            href = override.get("replacement_url", expanded)
+            anchor = override.get("title", display)
+        else:
+            href = expanded
+            entry = url_titles.get(expanded)
+            if entry and entry.get("status") == "ok" and entry.get("title"):
+                anchor = entry["title"]
+            else:
+                anchor = display
         if short:
             short_esc = escape(short)
-            link_html = f'<a href="{escape(expanded)}">{escape(display)}</a>'
+            link_html = f'<a href="{escape(href)}">{escape(anchor)}</a>'
             text_html = text_html.replace(short, short_esc)
             text_html = text_html.replace(short_esc, link_html)
 
@@ -376,6 +393,11 @@ def main():
     tagged = data.get("tweets") or []
     tweets_by_id = load_tweets_raw(tweets_path)
 
+    # Load URL title map and overrides
+    from tweet_text_cleanup import load_url_titles, load_url_overrides
+    url_titles = load_url_titles()
+    url_overrides = load_url_overrides()
+
     # Enrich + filter
     rows = []
     for t in tagged:
@@ -458,7 +480,7 @@ def main():
         if is_ascii:
             tweet_html.append(f'<div class="tweet-text tweet-text-ascii"><pre>{escape(text)}</pre></div>')
         else:
-            tweet_html.append(f'<div class="tweet-text">{auto_link_text(text, raw)}</div>')
+            tweet_html.append(f'<div class="tweet-text">{auto_link_text(text, raw, url_titles, url_overrides)}</div>')
 
         tags_html = render_tag_badges(tags)
         if tags_html:
@@ -494,34 +516,36 @@ def main():
 
     nav_top = nav_bar()
     nav_bottom = nav_top
+    _NL2 = "\n\n"
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Compendium</title>
+  <title>Noteworthy Singletons</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../compendium.css">
 </head>
 <body>
-  <div class="chapter">
-    <header>
-      <h1>Compendium</h1>
-      <p class="compendium-intro">{escape(intro_lorem)}</p>
-      <div class="compendium-stats">
-        <div><strong>Statistics</strong></div>
-        <div>Range: {year_min}–{year_max}</div>
-        <div>Included tweets: {kept_count}</div>
-        <div>Featured tweets: {featured_count}</div>
-        <div><strong>Tag counts</strong>: {tag_summary}</div>
-        <div><strong>Year counts</strong>: {year_summary}</div>
+  <div class="page">
+    <div class="page-content">
+      <div class="chapter">
+        <header>
+          <h1 class="chapter-title">Noteworthy Singletons</h1>
+          <p class="compendium-intro">{escape(intro_lorem)}</p>
+          <div class="compendium-stats">
+            <div><strong>Statistics</strong></div>
+            <div>Range: {year_min}–{year_max}</div>
+            <div>Included tweets: {kept_count}</div>
+            <div>Featured tweets: {featured_count}</div>
+            <div><strong>Tag counts</strong>: {tag_summary}</div>
+            <div><strong>Year counts</strong>: {year_summary}</div>
+          </div>
+        </header>
+
+        {_NL2.join(parts)}
+
       </div>
-    </header>
-
-    {"\n\n".join(parts)}
-
-    <div class="nav">
-      <a href="../index.html">Back to index</a>
     </div>
   </div>
 </body>

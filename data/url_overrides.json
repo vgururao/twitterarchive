@@ -1,0 +1,11 @@
+{
+  "_comment": "Map original tweet URLs to replacement URLs and titles. Used by generators to fix broken, hijacked, or outdated links.",
+  "overrides": [
+    {
+      "original_url": "http://infofranpro.wikidot.com/19520101-on-cooling",
+      "replacement_url": "https://www.tandfonline.com/doi/abs/10.1080/00332747.1952.11022896",
+      "title": "On Cooling the Mark Out (Erving Goffman, 1952)",
+      "reason": "Original URL hijacked by spam site"
+    }
+  ]
+}

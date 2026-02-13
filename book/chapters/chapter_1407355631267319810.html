@@ -7,58 +7,65 @@
 </head>
 <body>
   <div class="page">
-    <div class="book-nav"><a class="nav-prev" href="../chapters/chapter_1407009538218205189.html">&laquo; 76. Project managing network effects</a><span class="nav-mid">… <a class="nav-toc" href="../toc.html">ToC</a> …</span><a class="nav-next" href="../chapters/chapter_1421268674313220102.html">78. Charismatic Epistemologies &raquo;</a></div>
+    <nav class="book-nav"><div class="nav-left"><a class="nav-link nav-prev" href="../chapters/chapter_1407009538218205189.html"><span class="nav-arrow">⬅️</span> <span class="nav-label">76. Project managing network effects</span></a></div><div class="nav-center"><a class="nav-link nav-toc" href="../toc.html">⬆️ ToC</a></div><div class="nav-right"><a class="nav-link nav-next" href="../chapters/chapter_1421268674313220102.html"><span class="nav-label">78. Charismatic Epistemologies</span> <span class="nav-arrow">➡️</span></a></div></nav>
+    
     <div class="page-content">
-      <h1 class="chapter-title">77. Anti-network effects</h1>
-      <div class="chapter-subtitle">June 22, 2021</div>
-      <div class="tweet" data-tweet-id="1407355631267319810">
+      <div class="chapter">
+        <h1 class="chapter-title">77. Anti-network effects</h1>
+        <div class="chapter-subtitle">June 22, 2021</div>
+        <div class="tweet">
   <div class="tweet-text">What’s the opposite of a network effect? <br>
 <br>
 Not merely a negative network effect like a contagion or failure cascade. That’s just point of view/subjective. Possibly a positive one for someone else.<br>
 <br>
 A true opposite on the spirit of “the opposite of love is not hate but apathy.”</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407356502524977153">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">Here’s an example I came up with. A cauliflower is a physical trace of a network effect.<br>
 <br>
 How do you chop a cauliflower properly? Doing it recursively, “carving reality at the joints” is a negative network effect.<br>
 <br>
-But dicing like it’s a cauliflower is an anti-network effect. https://t.co/7ueIhgTkyq</div>
-<div class="tweet-media">
-<img class="tweet-photo" src="../assets/media/1407356502524977153-E4fvR9YVUAQ_qAe.jpg" alt="tweet photo">
-</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
+But dicing like it’s a cauliflower is an anti-network effect. </div>
 
-<div class="tweet" data-tweet-id="1407357259005325319">
+
+<div class="tweet-media">
+<img class="tweet-photo" src="../assets/media/E4fvR9YVUAQ_qAe.jpg" alt="tweet image">
+</div>
+</div>
+<div class="tweet">
   <div class="tweet-text">In the picture above, recursive chopping is a way to “hate” the cauliflower topology. It is topology-aware. A kind of love really, though you’re destroying it. <br>
 <br>
 B is indifferent to it. Dicing into a regular grid like a potato throws away the network effect.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407358601702817803">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">If you actually try, you’ll notice that A takes more time but is much cleaner, resulting in roughly even-sized florets in a narrow distribution with structural integrity. Depending on how deep you take the recursion, you can get median size of florets between 1/2” to 2”.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407359096039231488">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">More than 2”  and you’re not really chopping, more like making small cauliflowers. Less than 1/2” and you’re running into the too-small floret fringe <br>
 <br>
 This method is good for high-quality cauliflower dishes.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407359500781187072">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">Method B is faster but much messier as you get to the head-surface of the cauliflower. Your dicing grid will be too coarse and the tiny florets will fall apart into crumbles. <br>
 <br>
 This is terrible. A method that’s only good for horrible, wasteful dishes like mashed cauliflower.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407360266853961742">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">How to generalize this example of dicing a cauliflower as an anti-network effect? Features:<br>
 <br>
 1. It is lossy, information-wise<br>
@@ -66,33 +73,37 @@ This is terrible. A method that’s only good for horrible, wasteful dishes like
 3. It creates debris (more pieces than your grid cell count) <br>
 <br>
 That last feature is a measure of the entropy introduced.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407362222955786242">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">If you take a simple object and make p cuts along one dimension, you get n=p+1 pieces<br>
 <br>
-If you take a “network” object and make p cuts, you can get n&amp;gt; p+1 pieces.<br>
+If you take a “network” object and make p cuts, you can get n&gt; p+1 pieces.<br>
 <br>
 Maybe n-p-1 is a good proxy of entropy?<br>
 <br>
 In 2d with p, q cuts, you’ll get (p+1)*(q+1) pieces with no entropy.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407363075741655042">
-  <div class="tweet-text">This is indirectly related to the main-cut/max-flow theorem. In a graph, the max flow between two points (source and sink, like root to floret of a cauliflower) equals the flow across the minimum cut. But what happens when you make a *random* cut?<br>
+
+
+</div>
+<div class="tweet">
+  <div class="tweet-text">This is indirectly related to the main-cut/max-flow theorem. In a graph, the max flow between two points (source and sink, like root to floret of a cauliflower) equals the flow across the minimum cut. But what happens when you make a <strong>random</strong> cut?<br>
 <br>
-https://t.co/Z5mr8WdEIU</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
+<a href="https://en.wikipedia.org/wiki/Max-flow_min-cut_theorem" target="_blank" rel="noreferrer">Max-flow min-cut theorem - Wikipedia</a></div>
 
-<div class="tweet" data-tweet-id="1407363788521705479">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">Here we have to shift from a topological notion of cut (point disconnection of a graph) to geometric, Ie a graph embedding in a plane. A single knife cut on a graph equipped with a geometry is multiple topological cuts using the information of just 2 cuts (2 points define a line)</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407365331891351557">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">So to define an anti-network effect<br>
 <br>
 a) define a network as a graph<br>
@@ -102,68 +113,86 @@ d) count number of pieces that result, n<br>
 e) anti-network-ness is ~= n-p^r <br>
 <br>
 (I’m wild-guessing the formula in e based on grid case)</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407366677856100356">
-  <div class="tweet-text">Definitely a rhizome-like effect, so smooth-striated applies as an approximation. But networks I think are qualitatively different too due to the deep recursion. A piece of ginger is like a small tree with &amp;lt; 10 vertices. A cauliflower is like thousands of “leaf” floret nodes. https://t.co/AW4m3yYcZu</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407367370448850946">
-  <div class="tweet-text">You could apply Nakatomi space theory. How would Bruce Willis have dealt with the Die Hard situation if Nakatomi tower had been an ever-expanding warren of ever-smaller tunnels? A cauliflower space? Die Hard 2 was almost that (tunnels under airport) https://t.co/3Ige2Slfh8</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407368285914497027">
+</div>
+<div class="tweet">
+  <div class="tweet-text">Definitely a rhizome-like effect, so smooth-striated applies as an approximation. But networks I think are qualitatively different too due to the deep recursion. A piece of ginger is like a small tree with &lt; 10 vertices. A cauliflower is like thousands of “leaf” floret nodes. <a href="https://twitter.com/deepfates/status/1407362514032238598" target="_blank" rel="noreferrer">tweet</a><sup class="endnote-ref"><a href="#endnote-1">[1]</a></sup></div>
+
+
+
+</div>
+<div class="tweet">
+  <div class="tweet-text">You could apply Nakatomi space theory. How would Bruce Willis have dealt with the Die Hard situation if Nakatomi tower had been an ever-expanding warren of ever-smaller tunnels? A cauliflower space? Die Hard 2 was almost that (tunnels under airport) <a href="https://www.bldgblog.com/2010/01/nakatomi-space/" target="_blank" rel="noreferrer">Nakatomi Space – BLDGBLOG</a></div>
+
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">Manaugh explicitly connects Nakatomi space theory to Deleuze and Guattari via IDF military tactics in the linked article. But buildings and cities are not quite rhizomatic imo. They have arborescent topologies, and so busting through walls does too.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407368784529088520">
-  <div class="tweet-text">A cauliflower is a poor metaphor discussing D&amp;amp;G connection since it is literally arborescent. That was just to illustrate graph-chopping. Take a more general graph like the human circulatory system or something. <br>
+
+
+</div>
+<div class="tweet">
+  <div class="tweet-text">A cauliflower is a poor metaphor discussing D&amp;G connection since it is literally arborescent. That was just to illustrate graph-chopping. Take a more general graph like the human circulatory system or something. <br>
 <br>
 “Drawing and quartering” a human is… an anti-network effect.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407369397551788041">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">This is getting a bit esoteric, but one final point. I’m mainly interested in the time dimension. Network effects grow graphs via superlinear processes. Cauliflower ontogeny in terms of branch count is probably something like 1, 2, 4, 8, 16…. or something like that.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407370167894437892">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">The two chopping processes though, look different in time.<br>
 <br>
 A is isentropic but slow. Each cut takes a bit of time, since you process information.<br>
 <br>
 B is fast, and transitions from isentropic to entropic if you work root-to-head, or evenly entropic if you hack randomly.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407371504333950977">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">Edit: random chopping would also be increasingly entropic I think, since later cuts would produce more debris generally. <br>
 <br>
-You could make a graph of cuts vs pieces to track this. https://t.co/ZmAnbGfJh3</div>
+You could make a graph of cuts vs pieces to track this. </div>
+
+
 <div class="tweet-media">
-<img class="tweet-photo" src="../assets/media/1407371504333950977-E4f87LlVIAEQzl_.jpg" alt="tweet photo">
+<img class="tweet-photo" src="../assets/media/E4f87LlVIAEQzl_.jpg" alt="tweet image">
 </div>
-  <div class="tweet-meta">June 22, 2021</div>
 </div>
-
-<div class="tweet" data-tweet-id="1407372350861975557">
+<div class="tweet">
   <div class="tweet-text">The creation of debris suggests that anti-network effects share features with explosions of crashes even if they are more controlled processes. I’ll have to think about this.</div>
-  <div class="tweet-meta">June 22, 2021</div>
-</div>
 
-<div class="tweet" data-tweet-id="1407373166050086914">
+
+
+</div>
+<div class="tweet">
   <div class="tweet-text">But punchline… a lot of management is a destructive anti-network effects! <br>
 <br>
-This is the core of *how* legibility-seeking unleashes destruction. The authoritarian high modernist dices cauliflower like potato. Many visual examples in Seeing Like a State. https://t.co/8gtncWWBum</div>
-  <div class="tweet-meta">June 22, 2021</div>
+This is the core of <strong>how</strong> legibility-seeking unleashes destruction. The authoritarian high modernist dices cauliflower like potato. Many visual examples in Seeing Like a State. <a href="https://www.ribbonfarm.com/2010/07/26/a-big-little-idea-called-legibility/" target="_blank" rel="noreferrer">A Big Little Idea Called Legibility</a></div>
+
+
+
 </div>
+<div class="chapter-endnotes">
+<h2 class="endnotes-title">Notes</h2>
+<ol class="endnotes-list">
+<li id="endnote-1" class="endnote-item">@deepfates &mdash; <a href="https://twitter.com/deepfates/status/1407362514032238598" target="_blank" rel="noreferrer">https://twitter.com/deepfates/status/1407362514032238598</a></li>
+</ol>
+</div>
+      </div>
     </div>
-    <div class="book-nav"><a class="nav-prev" href="../chapters/chapter_1407009538218205189.html">&laquo; 76. Project managing network effects</a><span class="nav-mid">… <a class="nav-toc" href="../toc.html">ToC</a> …</span><a class="nav-next" href="../chapters/chapter_1421268674313220102.html">78. Charismatic Epistemologies &raquo;</a></div>
+    
+      <nav class="book-nav"><div class="nav-left"><a class="nav-link nav-prev" href="../chapters/chapter_1407009538218205189.html"><span class="nav-arrow">⬅️</span> <span class="nav-label">76. Project managing network effects</span></a></div><div class="nav-center"><a class="nav-link nav-toc" href="../toc.html">⬆️ ToC</a></div><div class="nav-right"><a class="nav-link nav-next" href="../chapters/chapter_1421268674313220102.html"><span class="nav-label">78. Charismatic Epistemologies</span> <span class="nav-arrow">➡️</span></a></div></nav>
   </div>
 </body>
 </html>

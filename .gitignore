@@ -1,5 +1,6 @@
 .DS_Store
 tree*.txt
+.claude/
 
 # raw twitter export viewer
 /Your archive.html

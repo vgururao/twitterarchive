@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -206,16 +207,16 @@ def nav_bar(prev_page: Optional[Page], next_page: Optional[Page], base_prefix: s
         return t
 
     if prev_page:
-        left = f'<a class="nav-link nav-prev" href="{base_prefix}{escape(prev_page.href)}">⬅️ {label(prev_page)}</a>'
+        left = f'<a class="nav-link nav-prev" href="{base_prefix}{escape(prev_page.href)}"><span class="nav-arrow">⬅️</span> <span class="nav-label">{label(prev_page)}</span></a>'
     else:
-        left = '<span class="nav-link nav-prev disabled">⬅️</span>'
+        left = '<span class="nav-link nav-prev disabled"><span class="nav-arrow">⬅️</span></span>'
 
     center = f'<a class="nav-link nav-toc" href="{base_prefix}toc.html">⬆️ ToC</a>'
 
     if next_page:
-        right = f'<a class="nav-link nav-next" href="{base_prefix}{escape(next_page.href)}">{label(next_page)} ➡️</a>'
+        right = f'<a class="nav-link nav-next" href="{base_prefix}{escape(next_page.href)}"><span class="nav-label">{label(next_page)}</span> <span class="nav-arrow">➡️</span></a>'
     else:
-        right = '<span class="nav-link nav-next disabled">➡️</span>'
+        right = '<span class="nav-link nav-next disabled"><span class="nav-arrow">➡️</span></span>'
 
     return (
         '<nav class="book-nav">'
@@ -381,18 +382,52 @@ def clear_old_thread_chapters():
     print(f"Cleared old thread chapter HTML files: {removed}")
 
 
+def _render_single_quote_box(tweet_id: str, tweets_by_id: Dict[str, Dict[str, Any]]) -> str:
+    """Render a single tweet as a quote box, if it exists in the archive."""
+    qt = tweets_by_id.get(str(tweet_id), {})
+    raw = qt.get("raw") or {}
+    qtext = raw.get("full_text") or raw.get("text") or ""
+    if not qtext:
+        return ""
+    qsafe = escape(qtext).replace("\n", "<br>\n")
+    return f'<blockquote class="quote-box"><div class="quote-text">{qsafe}</div></blockquote>'
+
+
 def render_quote_boxes(tweet: Dict[str, Any], tweets_by_id: Dict[str, Dict[str, Any]]) -> str:
-    # Keep existing logic minimal: if tweet has quoted_id, render it as a stylable block.
+    # If tweet has quoted_id, render it as a stylable block.
     qid = tweet.get("quoted_id")
     if not qid:
         return ""
-    qt = tweets_by_id.get(str(qid), {}).get("raw") or {}
-    qtext = qt.get("full_text") or qt.get("text") or ""
-    if not qtext:
-        return ""
-    # Note: quote text cleanup handled via tweet_text_cleanup when rendering main text; here we keep it simple.
-    qsafe = escape(qtext).replace("\n", "<br>\n")
-    return f'<blockquote class="quote-box"><div class="quote-text">{qsafe}</div></blockquote>'
+    return _render_single_quote_box(qid, tweets_by_id)
+
+
+_SELF_TWEET_RE = re.compile(r'twitter\.com/vgr/status/(\d+)')
+
+
+def render_self_tweet_quotes(raw: Dict[str, Any], tweets_by_id: Dict[str, Dict[str, Any]],
+                             current_tweet_id: str = "") -> str:
+    """
+    Find self-tweet URLs (twitter.com/vgr/status/...) in entity URLs,
+    look up the referenced tweet in the archive, and render as quote boxes.
+    Skips the current tweet to avoid self-quoting.
+    """
+    entities = (raw or {}).get("entities") or {}
+    urls = entities.get("urls") or []
+    boxes: List[str] = []
+    seen: set = set()
+    for u in urls:
+        expanded = u.get("expanded_url") or ""
+        m = _SELF_TWEET_RE.search(expanded)
+        if not m:
+            continue
+        tid = m.group(1)
+        if tid == current_tweet_id or tid in seen:
+            continue
+        seen.add(tid)
+        box = _render_single_quote_box(tid, tweets_by_id)
+        if box:
+            boxes.append(box)
+    return "\n".join(boxes)
 
 
 def render_media(tweet_raw: Dict[str, Any]) -> str:
@@ -412,14 +447,17 @@ def render_media(tweet_raw: Dict[str, Any]) -> str:
         if t == "photo":
             bits.append(f'<img class="tweet-photo" src="{local}" alt="tweet image">')
         elif t in ("video", "animated_gif"):
+            # Find best mp4 variant URL and derive local basename
             variants = (((m.get("video_info") or {}).get("variants")) or [])
-            mp4 = None
-            for v in variants:
-                if (v.get("content_type") or "") == "video/mp4":
-                    mp4 = v.get("url")
-                    break
-            # We rely on local mp4 basename already copied into assets/media with same basename as URL when possible.
-            bits.append(f'<video class="tweet-video" src="{local}" controls preload="metadata"></video>')
+            mp4_variants = [v for v in variants if (v.get("content_type") or "") == "video/mp4"]
+            mp4_variants.sort(key=lambda v: v.get("bitrate", 0), reverse=True)
+            if mp4_variants:
+                mp4_url = mp4_variants[0].get("url", "")
+                mp4_basename = mp4_url.split("/")[-1].split("?")[0] if mp4_url else ""
+                if mp4_basename:
+                    local = f"../assets/media/{escape(mp4_basename)}"
+            autoplay = ' autoplay loop muted playsinline' if t == "animated_gif" else ' controls'
+            bits.append(f'<video class="tweet-video" src="{local}"{autoplay} preload="metadata"></video>')
         else:
             bits.append(f'<a href="{local}">media</a>')
     bits.append("</div>")
@@ -428,30 +466,52 @@ def render_media(tweet_raw: Dict[str, Any]) -> str:
 
 def generate_thread_chapter_html(page: Page,
                                 thread: Dict[str, Any],
-                                tweets_by_id: Dict[str, Dict[str, Any]]) -> str:
+                                tweets_by_id: Dict[str, Dict[str, Any]],
+                                url_titles: Optional[Dict[str, Any]] = None,
+                                url_overrides: Optional[Dict[str, Any]] = None) -> str:
     from tweet_text_cleanup import render_tweet_text_html  # local module in data/
 
     tweets = thread.get("tweets") or []
     parts: List[str] = []
+    endnotes: List[Dict[str, str]] = []
 
     for tw in tweets:
         rid = str(tw.get("id_str") or "")
         raw = (tweets_by_id.get(rid) or {}).get("raw") or tw.get("raw") or {}
         text = raw.get("full_text") or raw.get("text") or tw.get("text") or ""
-        text_html = render_tweet_text_html(text, raw, link_label="link")
+        text_html = render_tweet_text_html(text, raw, url_titles=url_titles, url_overrides=url_overrides, embed_self_tweets=True, endnotes=endnotes)
 
         # tweet card
         parts.append('<div class="tweet">')
         parts.append(f'  <div class="tweet-text">{text_html}</div>')
 
-        # Quote boxes (stylable)
-        # (Your existing pipeline also embeds self-quotes; this is additive/minimal.)
+        # Quote boxes: explicit quoted_id
         parts.append(render_quote_boxes({"quoted_id": tw.get("quoted_id")}, tweets_by_id))
+
+        # Self-tweet links rendered as inline quotes
+        parts.append(render_self_tweet_quotes(raw, tweets_by_id, current_tweet_id=rid))
 
         # Media (stylable width in CSS)
         parts.append(render_media(raw))
 
         parts.append("</div>")
+
+    # Render endnotes section if any external tweet references were collected
+    if endnotes:
+        parts.append('<div class="chapter-endnotes">')
+        parts.append('<h2 class="endnotes-title">Notes</h2>')
+        parts.append('<ol class="endnotes-list">')
+        for note in endnotes:
+            num = note["num"]
+            handle = escape(note["handle"])
+            url = escape(note["url"])
+            parts.append(
+                f'<li id="endnote-{num}" class="endnote-item">'
+                f'@{handle} &mdash; <a href="{url}" target="_blank" rel="noreferrer">{url}</a>'
+                f'</li>'
+            )
+        parts.append('</ol>')
+        parts.append('</div>')
 
     body = "\n".join(parts)
     # Navigation base is "../" because chapters live under book/chapters/
@@ -474,7 +534,7 @@ def patch_nav_in_html(html: str, nav_top: str, nav_bottom: str) -> str:
     return html
 
 
-def write_thread_chapters(pages: List[Page], threads_by_id: Dict[str, Dict[str, Any]], tweets_by_id: Dict[str, Dict[str, Any]]):
+def write_thread_chapters(pages: List[Page], threads_by_id: Dict[str, Dict[str, Any]], tweets_by_id: Dict[str, Dict[str, Any]], url_titles: Optional[Dict[str, Any]] = None, url_overrides: Optional[Dict[str, Any]] = None):
     # Build lookup for prev/next nav
     by_href = {p.href: p for p in pages}
 
@@ -490,7 +550,7 @@ def write_thread_chapters(pages: List[Page], threads_by_id: Dict[str, Dict[str, 
         nextp = pages[i + 1] if i + 1 < len(pages) else None
         nav = nav_bar(prevp, nextp, base_prefix="../")
 
-        html = generate_thread_chapter_html(p, thread, tweets_by_id)
+        html = generate_thread_chapter_html(p, thread, tweets_by_id, url_titles=url_titles, url_overrides=url_overrides)
         # inject nav
         html = html.replace('<div class="page">', f'<div class="page">\n    {nav}', 1)
         html = html.replace('</div>\n</body>', f'    {nav}\n  </div>\n</body>', 1)
@@ -569,6 +629,17 @@ def main():
     print(f"Loading title overrides from {CHAPTER_TITLES_JSON} ...")
     title_overrides = load_chapter_title_overrides(CHAPTER_TITLES_JSON)
 
+    # Load URL title map and overrides (for link anchor text and replacements)
+    from tweet_text_cleanup import load_url_titles, load_url_overrides
+    url_titles = load_url_titles()
+    url_overrides = load_url_overrides()
+    if url_titles:
+        print(f"Loaded URL titles: {len(url_titles)} entries")
+    else:
+        print("No url_titles.json found; links will use display_url or 'link'.")
+    if url_overrides:
+        print(f"Loaded URL overrides: {len(url_overrides)} entries")
+
     pages = build_pages(chapter_threads, threads_by_id, tweets_by_id, title_overrides)
 
     # Generate outputs
@@ -578,7 +649,7 @@ def main():
     write_toc(pages)
     write_preface_page(pages)
     patch_compendium_nav(pages)
-    write_thread_chapters(pages, threads_by_id, tweets_by_id)
+    write_thread_chapters(pages, threads_by_id, tweets_by_id, url_titles=url_titles, url_overrides=url_overrides)
 
     print(f"Wrote cover: {COVER_OUT}")
     print(f"Wrote ToC: {TOC_OUT}")

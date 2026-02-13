@@ -84,10 +84,16 @@ body {
   text-decoration: none;
   color: inherit;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+.nav-link .nav-label{
   overflow: hidden;
   text-overflow: ellipsis;
-  display: inline-block;
-  max-width: 100%;
+}
+.nav-link .nav-arrow{
+  flex-shrink: 0;
 }
 .nav-link:hover{ text-decoration: underline; }
 .nav-link.disabled{
@@ -120,3 +126,75 @@ blockquote.quote-box .quote-text{ font-size: 0.95em; }
 /* ToC list should inherit chapter box styling */
 .chapter-list{ padding-left: 1.2rem; }
 .chapter-list li{ margin: 0.25rem 0; }
+
+/* === CHAPTER SUBTITLE (date) === */
+.chapter-subtitle{
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+/* === COVER PAGE === */
+.cover{
+  text-align: center;
+}
+.cover .cover-image{
+  max-width: 100%;
+  height: auto;
+}
+
+/* === TITLE PAGE === */
+.titlepage{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 70vh;
+}
+.titlepage h1{
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  letter-spacing: -0.02em;
+}
+.titlepage .subtitle{
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: #555;
+  margin: 0 0 2.5rem;
+}
+.titlepage .byline{
+  font-size: 1.35rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* === ENDNOTES === */
+.chapter-endnotes{
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+}
+.endnotes-title{
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+.endnotes-list{
+  padding-left: 1.5rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+.endnote-item{
+  margin-bottom: 0.3rem;
+}
+.endnote-ref a{
+  font-size: 0.75rem;
+  color: #888;
+  text-decoration: none;
+}
+.endnote-ref a:hover{
+  text-decoration: underline;
+}

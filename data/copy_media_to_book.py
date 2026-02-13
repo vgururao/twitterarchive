@@ -6,9 +6,10 @@ from collections import defaultdict
 HERE = Path(__file__).resolve().parent        # .../twitterarchive/data
 ROOT = HERE.parent                             # .../twitterarchive
 
-THREADS_FILE = HERE / "threads_data_ops_patched.jsonl"
-TWEETS_FILE  = HERE / "tweets_normalized.jsonl"
-OUT_DIR      = ROOT / "book" / "assets" / "media"
+THREADS_FILE   = HERE / "threads_data_ops_patched.jsonl"
+TWEETS_FILE    = HERE / "tweets_normalized.jsonl"
+SELECTION_FILE = HERE / "selection_final_clean.json"
+OUT_DIR        = ROOT / "book" / "assets" / "media"
 
 MEDIA_DIRS = [
     ROOT / "data" / "tweets_media",
@@ -70,9 +71,16 @@ def main():
         if tid:
             tweets_by_id[tid] = t
 
-    # Build needed basenames from selected chapter tweets
+    # Load selection
+    sel = json.loads(SELECTION_FILE.read_text(encoding="utf-8"))
+    selected_threads = set(sel.get("chapter_threads", []))
+    compendium_tweets = set(sel.get("compendium_tweets", []))
+
+    # Build needed basenames from selected chapter threads
     needed = set()
     for th in iter_jsonl(THREADS_FILE):
+        if str(th.get("thread_id")) not in selected_threads:
+            continue
         for tw in th.get("tweets", []):
             tid = tw.get("id_str")
             full = tweets_by_id.get(tid) or {}
@@ -83,6 +91,17 @@ def main():
                 base = basename_from_media(m)
                 if base:
                     needed.add(base)
+
+    # Also include media from compendium singleton tweets
+    for ctid in compendium_tweets:
+        full = tweets_by_id.get(ctid) or {}
+        raw = full.get("raw") or {}
+        if not isinstance(raw, dict):
+            continue
+        for m in get_media(raw):
+            base = basename_from_media(m)
+            if base:
+                needed.add(base)
 
     idx, scanned = build_media_index()
     print("Media files scanned:", scanned)
@@ -100,7 +119,7 @@ def main():
 
         # Copy ALL matches (rare duplicates), deterministic
         for src in paths:
-            dst = OUT_DIR / src.name
+            dst = OUT_DIR / base
             if not dst.exists():
                 shutil.copy2(src, dst)
                 copied += 1
