@@ -58,42 +58,65 @@ body {
       margin-top: 1rem;
       font-size: 0.85rem;
     }
-/* COMPENDIUM */
-.compendium-intro { margin-top: 0.25rem; color: #444; }
-.compendium-stats {
-  margin: 1rem 0 1.25rem 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid #eee;
-  background: #fafafa;
-  border-radius: 6px;
-  font-size: 0.9rem;
+
+
+
+/* === BOOK NAV (generated) === */
+.book-nav{
+  max-width: 800px;
+  margin: 0.75rem auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.95rem;
 }
-.year-divider {
-  margin: 1.25rem 0 0.5rem 0;
-  font-size: 1.15rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 0.25rem;
-  color: #333;
+.book-nav .nav-left,
+.book-nav .nav-center,
+.book-nav .nav-right{
+  flex: 1;
+  min-width: 0;
 }
-.tweet-tags { margin-top: 0.35rem; }
-.tag-badge {
+.book-nav .nav-left{ text-align: left; }
+.book-nav .nav-center{ text-align: center; }
+.book-nav .nav-right{ text-align: right; }
+
+.nav-link{
+  text-decoration: none;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: inline-block;
-  border: 1px solid #ddd;
-  background: #f3f3f3;
-  border-radius: 999px;
-  padding: 0.05rem 0.5rem;
-  margin-right: 0.35rem;
-  font-size: 0.75rem;
+  max-width: 100%;
+}
+.nav-link:hover{ text-decoration: underline; }
+.nav-link.disabled{
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Ensure page wrapper doesn't fight existing chapter box styling */
+.page{ padding: 0.5rem 0; }
+.page-content{ padding: 0; }
+
+/* Quoted tweets: indentation + vertical bar */
+blockquote.quote-box{
+  margin: 0.5rem 0;
+  padding-left: 0.85rem;
+  border-left: 3px solid #ddd;
   color: #444;
 }
-.tweet.featured {
-  border-left: 4px solid #222;
-  padding-left: 0.75rem;
+blockquote.quote-box .quote-text{ font-size: 0.95em; }
+
+/* Media sizing: keep embedded images/videos modest */
+.tweet-media img,
+.tweet-media video{
+  max-width: 50%;
+  height: auto;
+  display: block;
+  margin-top: 0.35rem;
 }
-.tweet-text-ascii pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 0.9rem;
-  margin: 0.25rem 0 0 0;
-}
+
+/* ToC list should inherit chapter box styling */
+.chapter-list{ padding-left: 1.2rem; }
+.chapter-list li{ margin: 0.25rem 0; }

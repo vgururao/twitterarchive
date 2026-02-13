@@ -25,6 +25,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html import escape
+from tweet_text_cleanup import render_tweet_text_html, render_ascii_pre
 from pathlib import Path
 
 
@@ -40,21 +41,6 @@ INDEX_PATH = BOOK_DIR / "index.html"
 
 STATUS_URL_RE = re.compile(r"https?://(?:x|twitter)\.com/[^/]+/status/(\d+)")
 
-
-
-def nav_bar(prev_href: str = "preface.html", prev_title: str = "Preface",
-            next_href: str = "", next_title: str = "",
-            toc_href: str = "../toc.html") -> str:
-    left = f'<a class="nav-link nav-prev" href="{escape(prev_href)}">⬅️ {escape(prev_title)}</a>' if prev_href else '<span class="nav-link nav-prev disabled">⬅️</span>'
-    center = f'<a class="nav-link nav-toc" href="{escape(toc_href)}">⬆️ ToC</a>'
-    right = f'<a class="nav-link nav-next" href="{escape(next_href)}">{escape(next_title)} ➡️</a>' if next_href else '<span class="nav-link nav-next disabled">➡️</span>'
-    return (
-        '<nav class="book-nav">'
-        f'<div class="nav-left">{left}</div>'
-        f'<div class="nav-center">{center}</div>'
-        f'<div class="nav-right">{right}</div>'
-        '</nav>'
-    )
 
 def iter_jsonl(path: Path):
     with open(path, "r", encoding="utf-8") as f:
@@ -492,16 +478,12 @@ def main():
         "This chapter presents them in strict chronological order with lightweight styling cues."
     )
 
-    nav_top = nav_bar()
-    nav_bottom = nav_top
-
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Compendium</title>
   <link rel="stylesheet" href="../style.css">
-  <link rel="stylesheet" href="../compendium.css">
 </head>
 <body>
   <div class="chapter">
