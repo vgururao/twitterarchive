@@ -605,6 +605,7 @@ def generate_thread_chapter_html(page: Page,
     from tweet_text_cleanup import render_tweet_text_html  # local module in data/
 
     tweets = thread.get("tweets") or []
+    tweets = sorted(tweets, key=lambda t: int(t.get("id_str") or "0"))
     parts: List[str] = []
     endnotes: List[Dict[str, str]] = []
 
