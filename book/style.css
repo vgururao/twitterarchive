@@ -1,63 +1,68 @@
 body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 0;
-      padding: 1rem 2rem;
-      background: #f7f7f7;
-      color: #222;
-    }
-    a { color: #0645ad; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    header {
-      margin-bottom: 1.5rem;
-    }
-    .chapter-list {
-      list-style: none;
-      padding: 0;
-    }
-    .chapter-list li {
-      margin-bottom: 0.5rem;
-    }
-    .chapter-meta {
-      font-size: 0.85rem;
-      color: #555;
-    }
-    .chapter {
-      max-width: 800px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 1.5rem 2rem;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .tweet {
-      border-bottom: 1px solid #eee;
-      padding: 0.5rem 0;
-    }
-    .tweet:last-child {
-      border-bottom: none;
-    }
-    .tweet-meta {
-      font-size: 0.75rem;
-      color: #666;
-      margin-bottom: 0.2rem;
-    }
-    .tweet-text {
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-    .tweet-media {
-      font-size: 0.8rem;
-      margin-top: 0.25rem;
-    }
-    .ext-flags {
-      font-size: 0.75rem;
-      color: #b04;
-      margin-bottom: 0.5rem;
-    }
-    .nav {
-      margin-top: 1rem;
-      font-size: 0.85rem;
-    }
+  font-family: Georgia, "Iowan Old Style", Palatino, "Book Antiqua", serif;
+  margin: 0;
+  padding: 1rem 2rem;
+  background: #f0ebe1;
+  color: #3a3330;
+  line-height: 1.5;
+}
+a { color: #6b4c2a; text-decoration: none; }
+a:hover { text-decoration: underline; color: #4a3018; }
+header {
+  margin-bottom: 1.5rem;
+}
+.chapter-list {
+  list-style: none;
+  padding: 0;
+}
+.chapter-list li {
+  margin-bottom: 0.5rem;
+}
+.chapter-meta {
+  font-size: 0.85rem;
+  color: #7a6f65;
+}
+h1, h2, h3, .chapter-title {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #2c2420;
+}
+.chapter {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #faf7f2;
+  padding: 1.5rem 2rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(60,40,20,0.08);
+}
+.tweet {
+  border-bottom: 1px solid #e8e0d6;
+  padding: 0.5rem 0;
+}
+.tweet:last-child {
+  border-bottom: none;
+}
+.tweet-meta {
+  font-size: 0.75rem;
+  color: #8a7e72;
+  margin-bottom: 0.2rem;
+}
+.tweet-text {
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.tweet-media {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+.ext-flags {
+  font-size: 0.75rem;
+  color: #a04030;
+  margin-bottom: 0.5rem;
+}
+.nav {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
 
 
 
@@ -68,7 +73,11 @@ body {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d9d0c4;
+  border-radius: 6px;
+  background: #f5f0e8;
 }
 .book-nav .nav-left,
 .book-nav .nav-center,
@@ -82,7 +91,7 @@ body {
 
 .nav-link{
   text-decoration: none;
-  color: inherit;
+  color: #5a4e42;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -91,13 +100,28 @@ body {
 .nav-link .nav-label{
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 600;
+  color: #3a3330;
 }
 .nav-link .nav-arrow{
   flex-shrink: 0;
+  font-size: 1.1em;
+  font-weight: 700;
+  color: #8a7e72;
 }
-.nav-link:hover{ text-decoration: underline; }
+.nav-prev .nav-arrow{ margin-right: 0.4em; }
+.nav-next .nav-arrow{ margin-left: 0.4em; }
+.nav-link.nav-toc{
+  font-weight: 600;
+  color: #5a4e42;
+  font-size: 0.85em;
+  letter-spacing: 0.02em;
+}
+.nav-link:hover{ text-decoration: underline; color: #6b4c2a; }
+.nav-link:hover .nav-label{ color: #6b4c2a; }
+.nav-link:hover .nav-arrow{ color: #6b4c2a; }
 .nav-link.disabled{
-  opacity: 0.35;
+  opacity: 0.3;
   pointer-events: none;
 }
 
@@ -105,12 +129,98 @@ body {
 .page{ padding: 0.5rem 0; }
 .page-content{ padding: 0; }
 
+/* === TABLE OF CONTENTS === */
+.toc-list{
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+.toc-list .toc-item{
+  margin: 0.3rem 0;
+  padding-left: 0;
+  position: relative;
+}
+.toc-list .toc-item a{
+  color: #5a4e42;
+  text-decoration: none;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.toc-list .toc-item a:hover{
+  text-decoration: underline;
+  color: #6b4c2a;
+}
+/* Preface and Singles get bold treatment */
+.toc-list .toc-preface,
+.toc-list .toc-singletons{
+  margin-top: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+.toc-list .toc-preface a,
+.toc-list .toc-singletons a{
+  font-weight: 700;
+  color: #2c2420;
+  font-size: 0.95rem;
+}
+
+/* ToC date after title */
+.toc-date{
+  color: #a89a8c;
+  font-size: 0.82em;
+  font-weight: 400;
+}
+/* ToC hover tooltip */
+.toc-tooltip{
+  display: none;
+  position: absolute;
+  left: 30rem;
+  top: -0.3rem;
+  z-index: 10;
+  width: 18rem;
+  padding: 0.6rem 0.85rem;
+  background: #fefce8;
+  color: #4a4035;
+  border: 1px solid #e5d9a0;
+  font-size: 0.82rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(60,40,20,0.12);
+  pointer-events: none;
+}
+.toc-tooltip::before{
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0.65rem;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 6px solid #e5d9a0;
+}
+.toc-tooltip::after{
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 0.65rem;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 6px solid #fefce8;
+}
+.toc-item.has-tooltip:hover .toc-tooltip{
+  display: block;
+}
+/* Suppress tooltips on mobile/touch */
+@media (hover: none), (max-width: 600px) {
+  .toc-tooltip{ display: none !important; }
+}
+
 /* Quoted tweets: indentation + vertical bar */
 blockquote.quote-box{
   margin: 0.5rem 0;
   padding-left: 0.85rem;
-  border-left: 3px solid #ddd;
-  color: #444;
+  border-left: 3px solid #d9d0c4;
+  color: #4a4035;
 }
 blockquote.quote-box .quote-text{ font-size: 0.95em; }
 
@@ -129,10 +239,23 @@ blockquote.quote-box .quote-text{ font-size: 0.95em; }
 
 /* === CHAPTER SUBTITLE (date) === */
 .chapter-subtitle{
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #444;
+  color: #6b5e50;
   margin-bottom: 1rem;
+}
+
+/* === CHAPTER SUMMARY === */
+.chapter-summary{
+  margin: 0.5rem 0 1.25rem;
+  padding: 0.75rem 1rem;
+  background: #f3efe8;
+  border-left: 3px solid #c8b99a;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #4a4035;
 }
 
 /* === COVER PAGE === */
@@ -158,43 +281,62 @@ blockquote.quote-box .quote-text{ font-size: 0.95em; }
   font-weight: 700;
   margin: 0 0 0.6rem;
   letter-spacing: -0.02em;
+  color: #2c2420;
 }
 .titlepage .subtitle{
   font-size: 1.15rem;
   font-weight: 400;
-  color: #555;
+  color: #6b5e50;
   margin: 0 0 2.5rem;
 }
 .titlepage .byline{
   font-size: 1.35rem;
   font-weight: 500;
+  color: #3a3330;
   margin: 0;
+}
+.titlepage .byline a{
+  color: inherit;
+  text-decoration: none;
+}
+.titlepage .byline a:hover{
+  text-decoration: underline;
+  color: #6b4c2a;
+}
+.titlepage .copyright{
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #8a7e72;
+  margin: 2rem 0 0;
 }
 
 /* === ENDNOTES === */
 .chapter-endnotes{
   margin-top: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #d9d0c4;
 }
 .endnotes-title{
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 1rem;
   font-weight: 600;
+  color: #2c2420;
   margin: 0 0 0.5rem;
 }
 .endnotes-list{
   padding-left: 1.5rem;
   font-size: 0.85rem;
-  color: #555;
+  color: #6b5e50;
 }
 .endnote-item{
   margin-bottom: 0.3rem;
 }
 .endnote-ref a{
   font-size: 0.75rem;
-  color: #888;
+  color: #a89a8c;
   text-decoration: none;
 }
 .endnote-ref a:hover{
   text-decoration: underline;
+  color: #6b4c2a;
 }

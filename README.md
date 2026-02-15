@@ -26,6 +26,8 @@ book/                          — generated output (served as static site)
   index.html                   — cover page
   toc.html                     — table of contents
   style.css                    — manually edited stylesheet (never overwritten by build)
+  compendium.css               — singles chapter styling (never overwritten by build)
+  mobile.css                   — mobile-responsive overrides (never overwritten by build)
   chapters/
     title.html                 — title page
     preface.html               — preface
@@ -88,22 +90,31 @@ python3 data/fetch_url_titles.py
 - **Media**: Photos, videos, and animated GIFs embedded; t.co URLs stripped from text
 - **Twitter markdown**: `*bold*` and `_italics_` rendered as HTML
 - **Navigation**: Top/bottom nav on every page with prev/next/ToC links
+- **Mobile-responsive**: Viewport meta + dedicated mobile CSS for phone readability
+- **Social cards**: Open Graph and Twitter Card meta on every page with cover image
+- **Permalink anchors**: Each compendium tweet has a direct-link anchor for sharing
+- **Page metadata**: Proper `<title>` tags with book title prefix on all pages
 
 ## Current status
 
-- Thread chapters: complete, stable selection
-- Compendium: generated, content complete
-- Frontmatter: cover and title page done; preface has placeholder lorem ipsum
+- **Live at**: https://venkateshrao.com/twitter-book/
+- Thread chapters: complete, stable selection (101 threads)
+- Compendium: 396 curated singles including 10 prehistory tweets from 2007
+- Frontmatter: cover, title page with copyright, full author-written preface
 - Media: 50 assets (images + MP4s for animated GIFs)
 - Links: titles fetched, overrides system in place, endnotes for external tweets
-- Styling: functional, could use a polish pass
+- Styling: Georgia serif, warm parchment palette, mobile-responsive
 
 ## Pending work
 
-- Write real preface content
 - Fix chapter 57 title (contains raw t.co URL in `chapter_titles.json`)
 - Remove ghost thread `1279451428302422016` from `selection_final_clean.json`
 - Retrieve other-people's tweets via Wayback Machine for quote-box embedding (pinned for later)
 - ePub and print book generation
-- Typography and styling polish pass
 - Clean up stale `_old` script files in `data/`
+
+## Reuse / forking
+
+This repo is not a generic "Twitter archive to book" tool — it's a bespoke pipeline built around editorial curation. The value is in the hand-picked thread selection, chapter titles, and careful cleanup, not in automation.
+
+That said, if you have a Twitter archive and want to do the same kind of curated book project, this repo could serve as a starter template. You'd fork it, swap in your own archive data, and go through your own curation process. A cleanup pass to make this easier (extracting hardcoded handle/metadata into config, documenting the curation workflow) is planned after the book is finished.

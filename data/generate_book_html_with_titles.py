@@ -59,9 +59,13 @@ TOC_OUT = BOOK_DIR / "toc.html"
 TITLE_OUT = CHAPTERS_DIR / "title.html"
 PREFACE_OUT = CHAPTERS_DIR / "preface.html"
 
-SINGLETONS_TITLE = "Noteworthy Singletons"
+SINGLETONS_TITLE = "Singles"
 TITLEPAGE_TITLE = "Title page"
 PREFACE_TITLE = "Preface"
+BOOK_TITLE = "vgr: The Twitter Years (2007\u201322)"
+BOOK_DESCRIPTION = "A curated collection of tweets and threads by Venkatesh Rao (@vgr), 2007\u201322."
+SITE_BASE_URL = "https://venkateshrao.com/twitter-book"
+COVER_IMAGE_URL = SITE_BASE_URL + "/assets/cover.png"
 
 
 @dataclass
@@ -207,16 +211,16 @@ def nav_bar(prev_page: Optional[Page], next_page: Optional[Page], base_prefix: s
         return t
 
     if prev_page:
-        left = f'<a class="nav-link nav-prev" href="{base_prefix}{escape(prev_page.href)}"><span class="nav-arrow">⬅️</span> <span class="nav-label">{label(prev_page)}</span></a>'
+        left = f'<a class="nav-link nav-prev" href="{base_prefix}{escape(prev_page.href)}"><span class="nav-arrow">&larr;</span><span class="nav-label">{label(prev_page)}</span></a>'
     else:
-        left = '<span class="nav-link nav-prev disabled"><span class="nav-arrow">⬅️</span></span>'
+        left = '<span class="nav-link nav-prev disabled"><span class="nav-arrow">&larr;</span></span>'
 
-    center = f'<a class="nav-link nav-toc" href="{base_prefix}toc.html">⬆️ ToC</a>'
+    center = f'<a class="nav-link nav-toc" href="{base_prefix}toc.html">Table of Contents</a>'
 
     if next_page:
-        right = f'<a class="nav-link nav-next" href="{base_prefix}{escape(next_page.href)}"><span class="nav-label">{label(next_page)}</span> <span class="nav-arrow">➡️</span></a>'
+        right = f'<a class="nav-link nav-next" href="{base_prefix}{escape(next_page.href)}"><span class="nav-label">{label(next_page)}</span><span class="nav-arrow">&rarr;</span></a>'
     else:
-        right = '<span class="nav-link nav-next disabled"><span class="nav-arrow">➡️</span></span>'
+        right = '<span class="nav-link nav-next disabled"><span class="nav-arrow">&rarr;</span></span>'
 
     return (
         '<nav class="book-nav">'
@@ -227,14 +231,35 @@ def nav_bar(prev_page: Optional[Page], next_page: Optional[Page], base_prefix: s
     )
 
 
-def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "", subtitle: str = "") -> str:
+def social_meta(doc_title: str, description: str = BOOK_DESCRIPTION) -> str:
+    return (
+        f'  <meta property="og:title" content="{escape(doc_title)}">\n'
+        f'  <meta property="og:description" content="{escape(description)}">\n'
+        f'  <meta property="og:image" content="{escape(COVER_IMAGE_URL)}">\n'
+        f'  <meta property="og:type" content="book">\n'
+        f'  <meta name="twitter:card" content="summary_large_image">\n'
+        f'  <meta name="twitter:title" content="{escape(doc_title)}">\n'
+        f'  <meta name="twitter:description" content="{escape(description)}">\n'
+        f'  <meta name="twitter:image" content="{escape(COVER_IMAGE_URL)}">'
+    )
+
+
+def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "", subtitle: str = "", summary: str = "", meta_title: str = "") -> str:
     subtitle_html = f'<div class="chapter-subtitle">{escape(subtitle)}</div>' if subtitle else ""
+    summary_html = f'<div class="chapter-summary"><em>{escape(summary)}</em></div>' if summary else ""
+    doc_title = meta_title if meta_title else title
+    og_desc = summary if summary else BOOK_DESCRIPTION
+    css_dir = css_href.rsplit("style.css", 1)[0]
+    mobile_href = css_dir + "mobile.css"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{escape(title)}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escape(doc_title)}</title>
+{social_meta(doc_title, og_desc)}
   <link rel="stylesheet" href="{escape(css_href)}">
+  <link rel="stylesheet" href="{escape(mobile_href)}">
 </head>
 <body>
   <div class="page">
@@ -243,6 +268,7 @@ def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav
       <div class="chapter">
         <h1 class="chapter-title">{escape(title)}</h1>
         {subtitle_html}
+        {summary_html}
         {body_html}
       </div>
     </div>
@@ -253,13 +279,19 @@ def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav
 """
 
 
-def page_shell_no_h1(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "") -> str:
+def page_shell_no_h1(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "", meta_title: str = "") -> str:
+    doc_title = meta_title if meta_title else title
+    css_dir = css_href.rsplit("style.css", 1)[0]
+    mobile_href = css_dir + "mobile.css"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{escape(title)}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escape(doc_title)}</title>
+{social_meta(doc_title)}
   <link rel="stylesheet" href="{escape(css_href)}">
+  <link rel="stylesheet" href="{escape(mobile_href)}">
 </head>
 <body>
   <div class="page">
@@ -322,7 +354,7 @@ def write_cover(pages: List[Page]):
     nav = nav_bar(prevp, nextp, base_prefix="")
 
     body = COVER_FRAGMENT.read_text(encoding="utf-8")
-    html = page_shell_no_h1("Cover", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav)
+    html = page_shell_no_h1("Cover", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav, meta_title=BOOK_TITLE)
     COVER_OUT.write_text(html, encoding="utf-8")
 
 
@@ -333,7 +365,7 @@ def write_title_page(pages: List[Page]):
     nav = nav_bar(prevp, nextp, base_prefix="../")
 
     body = TITLE_FRAGMENT.read_text(encoding="utf-8")
-    html = page_shell_no_h1(TITLEPAGE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav)
+    html = page_shell_no_h1(TITLEPAGE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav, meta_title=BOOK_TITLE)
     TITLE_OUT.write_text(html, encoding="utf-8")
 
 
@@ -344,31 +376,53 @@ def write_preface_page(pages: List[Page]):
     nav = nav_bar(prevp, nextp, base_prefix="../")
 
     body = PREFACE_FRAGMENT.read_text(encoding="utf-8")
-    html = page_shell_no_h1(PREFACE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav)
+    meta = f"{BOOK_TITLE} | Preface"
+    html = page_shell_no_h1(PREFACE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav, meta_title=meta)
     PREFACE_OUT.write_text(html, encoding="utf-8")
 
 
 def write_toc(pages: List[Page]):
+    summaries = load_chapter_summaries()
     items: List[str] = []
-    # self link first
-    items.append('<li class="toc-self"><a href="toc.html">Table of Contents</a></li>')
 
+    skip_kinds = {"toc", "cover", "title"}
     for p in pages:
-        if p.kind == "toc":
+        if p.kind in skip_kinds:
             continue
         label = escape(p.title)
         if p.chapter_no is not None:
             label = f"{p.chapter_no}. {label}"
-        items.append(f'<li class="toc-item toc-{escape(p.kind)}"><a href="{escape(p.href)}">{label}</a></li>')
 
-    body = '<h1>Table of Contents</h1>' + f'<ul class="chapter-list">{"".join(items)}</ul>'
+        # Add date in parentheses for threads
+        date_span = ""
+        if p.subtitle:
+            date_span = f' <span class="toc-date">({escape(p.subtitle)})</span>'
+
+        # Add hover tooltip for chapters with summaries
+        thread_id = p.href.replace("chapters/chapter_", "").replace(".html", "")
+        summary = summaries.get(thread_id, "")
+        tooltip = ""
+        if summary:
+            tooltip = f'<span class="toc-tooltip">{escape(summary)}</span>'
+
+        li_class = f'toc-item toc-{escape(p.kind)}'
+        if summary:
+            li_class += " has-tooltip"
+        items.append(
+            f'<li class="{li_class}">'
+            f'<a href="{escape(p.href)}">{label}{date_span}</a>'
+            f'{tooltip}</li>'
+        )
+
+    body = '<h1>Table of Contents</h1>' + f'<ul class="toc-list">{"".join(items)}</ul>'
 
     idx = next((i for i, p in enumerate(pages) if p.kind == "toc"), None)
     prevp = pages[idx - 1] if idx is not None and idx > 0 else None
     nextp = pages[idx + 1] if idx is not None and idx + 1 < len(pages) else None
     nav = nav_bar(prevp, nextp, base_prefix="")
 
-    html = page_shell_no_h1("Table of Contents", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav)
+    toc_meta = f"{BOOK_TITLE} | Table of Contents"
+    html = page_shell_no_h1("Table of Contents", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav, meta_title=toc_meta)
     TOC_OUT.write_text(html, encoding="utf-8")
 
 
@@ -468,7 +522,8 @@ def generate_thread_chapter_html(page: Page,
                                 thread: Dict[str, Any],
                                 tweets_by_id: Dict[str, Dict[str, Any]],
                                 url_titles: Optional[Dict[str, Any]] = None,
-                                url_overrides: Optional[Dict[str, Any]] = None) -> str:
+                                url_overrides: Optional[Dict[str, Any]] = None,
+                                summary: str = "") -> str:
     from tweet_text_cleanup import render_tweet_text_html  # local module in data/
 
     tweets = thread.get("tweets") or []
@@ -514,12 +569,16 @@ def generate_thread_chapter_html(page: Page,
         parts.append('</div>')
 
     body = "\n".join(parts)
+    chapter_display = f"{page.chapter_no}. {page.title}" if page.chapter_no else page.title
+    chapter_meta = f"{BOOK_TITLE} | {chapter_display}"
     # Navigation base is "../" because chapters live under book/chapters/
     return page_shell(
-        title=(f"{page.chapter_no}. {page.title}" if page.chapter_no else page.title),
+        title=chapter_display,
         subtitle=page.subtitle,
         body_html=body,
         css_href=STYLE_HREF_CHAPTER,
+        summary=summary,
+        meta_title=chapter_meta,
     )
 
 
@@ -534,9 +593,19 @@ def patch_nav_in_html(html: str, nav_top: str, nav_bottom: str) -> str:
     return html
 
 
+def load_chapter_summaries() -> Dict[str, str]:
+    """Load hand-edited chapter summaries keyed by thread_id."""
+    path = DATA_DIR / "chapter_summaries.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data.get("summaries") or {}
+
+
 def write_thread_chapters(pages: List[Page], threads_by_id: Dict[str, Dict[str, Any]], tweets_by_id: Dict[str, Dict[str, Any]], url_titles: Optional[Dict[str, Any]] = None, url_overrides: Optional[Dict[str, Any]] = None):
     # Build lookup for prev/next nav
     by_href = {p.href: p for p in pages}
+    summaries = load_chapter_summaries()
 
     for i, p in enumerate(pages):
         if p.kind != "thread":
@@ -550,7 +619,8 @@ def write_thread_chapters(pages: List[Page], threads_by_id: Dict[str, Dict[str, 
         nextp = pages[i + 1] if i + 1 < len(pages) else None
         nav = nav_bar(prevp, nextp, base_prefix="../")
 
-        html = generate_thread_chapter_html(p, thread, tweets_by_id, url_titles=url_titles, url_overrides=url_overrides)
+        summary = summaries.get(thread_id, "")
+        html = generate_thread_chapter_html(p, thread, tweets_by_id, url_titles=url_titles, url_overrides=url_overrides, summary=summary)
         # inject nav
         html = html.replace('<div class="page">', f'<div class="page">\n    {nav}', 1)
         html = html.replace('</div>\n</body>', f'    {nav}\n  </div>\n</body>', 1)
@@ -565,8 +635,9 @@ def patch_compendium_nav(pages: List[Page]):
         # Create a minimal stub so the ToC link isn't dead.
         stub = page_shell_no_h1(
             title=SINGLETONS_TITLE,
-            body_html='<h1>Noteworthy Singletons</h1><p>Compendium page not generated yet.</p>',
+            body_html='<h1>Singles</h1><p>Compendium page not generated yet.</p>',
             css_href=STYLE_HREF_CHAPTER,
+            meta_title=f"{BOOK_TITLE} | 1. Singles",
         )
         comp.write_text(stub, encoding="utf-8")
         return

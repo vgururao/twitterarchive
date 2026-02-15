@@ -1,8 +1,19 @@
 /* === COMPENDIUM === */
 
-.compedium-page .tweet {
+.compendium-page .tweet,
+.compendium-tweet {
   position: relative;
   padding: 0.9rem 0;
+}
+
+/* Date stamp: top-left, bold small */
+.tweet-date {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #8a7e72;
+  text-align: left;
+  margin-bottom: 0.15rem;
 }
 
 /* Content-first layout */
@@ -11,31 +22,26 @@
   line-height: 1.45;
 }
 
-/* Footer meta row */
-.tweet-meta-footer {
-  margin-top: 0.4rem;
-  font-size: 0.75rem;
-  color: #777;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Tag styling */
-.tweet-tags {
+/* Tag styling: bottom-right */
+.compendium-tweet .tweet-tags {
   margin-top: 0.35rem;
+  text-align: right;
 }
 
-.tag-badge {
-  background: #eef1f5;
-  border: 1px solid #d5dbe3;
-  color: #333;
-}
+/* Per-tag pastel colors */
+.tag-badge.tag-reflection { background: #e8f0fe; border-color: #c5d7f2; color: #2a4a7f; }
+.tag-badge.tag-joke       { background: #fef3e0; border-color: #f2ddb5; color: #7a5a1f; }
+.tag-badge.tag-take       { background: #fde8e8; border-color: #f2c5c5; color: #8b2525; }
+.tag-badge.tag-aphorism   { background: #e8f5e9; border-color: #b9debb; color: #2e6b32; }
+.tag-badge.tag-advice     { background: #f3e8fd; border-color: #d5bff2; color: #5b2e8b; }
+.tag-badge.tag-idea       { background: #e0f7fa; border-color: #b2ebf2; color: #00695c; }
+.tag-badge.tag-ascii      { background: #f0ebe1; border-color: #d9d0c4; color: #4a4035; }
+.tag-badge.tag-prehistory { background: #fce4ec; border-color: #f0b8c8; color: #7a2e4a; }
 
 /* Featured = magazine callout */
 .tweet.featured {
-  border: 1px solid #ddd;
-  background: #f9f9f7;
+  border: 1px solid #d9d0c4;
+  background: #f5f0e8;
   padding: 0.9rem 1rem;
   border-radius: 6px;
 }
@@ -44,7 +50,16 @@
   font-weight: 600;
 }
 
-/* Star indicator */
+/* Featured tweets colored by primary tag */
+.tweet.featured.tag-reflection { background: #e8f0fe; border-color: #c5d7f2; }
+.tweet.featured.tag-joke       { background: #fef3e0; border-color: #f2ddb5; }
+.tweet.featured.tag-take       { background: #fde8e8; border-color: #f2c5c5; }
+.tweet.featured.tag-aphorism   { background: #e8f5e9; border-color: #b9debb; }
+.tweet.featured.tag-advice     { background: #f3e8fd; border-color: #d5bff2; }
+.tweet.featured.tag-idea       { background: #e0f7fa; border-color: #b2ebf2; }
+.tweet.featured.tag-ascii      { background: #f0ebe1; border-color: #d9d0c4; }
+
+/* Star indicator (unused, kept for reference) */
 .tweet-star {
   position: absolute;
   top: 0.4rem;
@@ -54,14 +69,62 @@
   opacity: 0.8;
 }
 
+/* Permalink anchor */
+.tweet-permalink {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.4rem;
+  font-size: 0.75rem;
+  text-decoration: none;
+  opacity: 0.25;
+  transition: opacity 0.15s;
+}
+.compendium-tweet:hover .tweet-permalink {
+  opacity: 0.6;
+}
+.tweet-permalink:hover {
+  opacity: 1 !important;
+}
+
 /* ASCII tweets */
 .tweet-text-ascii pre {
   white-space: pre-wrap;
   word-break: break-word;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  background: #fafafa;
+  background: #f5f0e8;
   padding: 0.5rem;
   border-radius: 4px;
+}
+
+/* Stats box at end of chapter */
+.compendium-stats {
+  margin-top: 2.5rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #f5f0e8, #ede7dc);
+  border: 1px solid #d9d0c4;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #4a4035;
+  line-height: 1.6;
+}
+.stats-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2c2420;
+}
+.stats-row {
+  margin-bottom: 0.4rem;
+}
+.stats-label {
+  display: inline-block;
+  width: 4.5rem;
+  font-weight: 600;
+  color: #6b5e50;
+}
+.compendium-stats .tag-badge {
+  font-size: 0.7rem;
+  margin-bottom: 0.2rem;
 }
 
 /* === ASCII FIX PATCH (manual) START === */

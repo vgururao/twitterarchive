@@ -283,7 +283,7 @@ def normalize_tags(tags):
 def render_tag_badges(tags):
     if not tags:
         return ""
-    badges = " ".join([f'<span class="tag-badge">{escape(t)}</span>' for t in tags])
+    badges = " ".join([f'<span class="tag-badge tag-{escape(t)}">{escape(t)}</span>' for t in tags])
     return f'<div class="tweet-tags">{badges}</div>'
 
 
@@ -366,7 +366,7 @@ def patch_index_with_compendium_link(compendium_filename: str, kept_count: int, 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tagged", default=str(DATA_DIR / "compendium_tagged_updated.json"),
+    ap.add_argument("--tagged", default=str(DATA_DIR / "compendium_tagged_with_prehistory.json"),
                     help="Tagged compendium JSON (export from compendium_selector.html)")
     ap.add_argument("--tweets", default=str(DATA_DIR / "tweets_normalized.jsonl"),
                     help="Normalized tweets JSONL (must include raw payload)")
@@ -471,20 +471,22 @@ def main():
         for tg in tags:
             classes.append(f"tag-{re.sub(r'[^a-zA-Z0-9_-]+', '', tg)}")
 
-        meta = f'{escape(str(r["created_at"]))} · ❤️ {r["favorite_count"]} · 🔁 {r["retweet_count"]} · id {escape(r["id_str"])}'
+        # Format date as "Jan 1, 2018"
+        if dt:
+            date_str = dt.strftime("%b %-d, %Y")
+        else:
+            date_str = ""
 
+        tweet_id = escape(r["id_str"])
         tweet_html = []
-        tweet_html.append(f'<div class="{" ".join(classes)}" data-tweet-id="{escape(r["id_str"])}">')
-        tweet_html.append(f'<div class="tweet-meta">{meta}</div>')
+        tweet_html.append(f'<div class="{" ".join(classes)}" data-tweet-id="{tweet_id}" id="t{tweet_id}">')
+        tweet_html.append(f'<a class="tweet-permalink" href="#t{tweet_id}" title="Link to this tweet">&#x1F517;</a>')
+        tweet_html.append(f'<div class="tweet-date">{escape(date_str)}</div>')
 
         if is_ascii:
             tweet_html.append(f'<div class="tweet-text tweet-text-ascii"><pre>{escape(text)}</pre></div>')
         else:
             tweet_html.append(f'<div class="tweet-text">{auto_link_text(text, raw, url_titles, url_overrides)}</div>')
-
-        tags_html = render_tag_badges(tags)
-        if tags_html:
-            tweet_html.append(tags_html)
 
         media_html = render_media_html(raw)
         if media_html:
@@ -494,25 +496,52 @@ def main():
         if quote_html:
             tweet_html.append(quote_html)
 
+        tags_html = render_tag_badges(tags)
+        if tags_html:
+            tweet_html.append(tags_html)
+
         tweet_html.append("</div>")
         parts.append("\n".join(tweet_html))
 
     # Build stats HTML (deterministic ordering)
-    tag_lines = []
+    tag_badges_stats = []
     for tag, cnt in sorted(tag_counts.items(), key=lambda x: (-x[1], x[0])):
-        tag_lines.append(f"{escape(tag)}: {cnt}")
-    tag_summary = ", ".join(tag_lines)
+        tag_badges_stats.append(
+            f'<span class="tag-badge tag-{escape(tag)}">{escape(tag)}: {cnt}</span>'
+        )
+    tag_summary_html = " ".join(tag_badges_stats)
 
     year_lines = []
     for y in sorted(by_year.keys()):
         year_lines.append(f"{y}: {by_year[y]}")
-    year_summary = ", ".join(year_lines)
+    year_summary = " · ".join(year_lines)
 
-    intro_lorem = (
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-        "Compendium tweets are singletons selected from the archive and tagged for theme and tone. "
-        "This chapter presents them in strict chronological order with lightweight styling cues."
-    )
+    intro_paras = [
+        "While most of this book is threads, this opening chapter contains a curated selection of "
+        "stand-alone tweets that were either exceptionally popular (as measured by likes and retweets), "
+        "personal favorites, or both. There are 396 tweets included, out of over 150k, or approximately "
+        "0.26%. I have also included my 10 earliest tweets, from 2007, even though there is nothing "
+        "notable about them, to convey a sense of the early calm before the later storms. "
+        "Of these 396, I have also highlighted 38 \u2014 0.026% \u2014 as particularly noteworthy. "
+        "In most cases, these are not just notable tweets, but ones with stories of some sort attached, "
+        "like interesting conversations ensuing, or the tweet marking an evolution in my philosophy. I "
+        "also classified and tagged these 396 tweets by category, primarily to try and fingerprint my "
+        "overall evolving vibe over the years. You can see summary statistics at the end of this chapter.",
+
+        "In many ways, for tweet-sized thinking and writing, singles are to threads what short stories "
+        "are to novels in long form. Many of my favorite writers, such as J. G. Ballard and Jorge Luis "
+        "Borges, were not only at their best with short stories, but revealed their thought processes the "
+        "most with shorter forms. Many twitter users I appreciated were masters of the one-off single. I "
+        "am not sure where I land, but I suspect browsing my most noteworthy single tweets is the best "
+        "way to get a sense of the gestalt of this book.",
+
+        "While I\u2019m proud of many of my threads, my most <em>memorable</em> tweets, which I can quote "
+        "from memory, were singles, and I think I\u2019ve captured most of them in this chapter. If you "
+        "weren\u2019t following me live during my active twitter years, browsing this chapter is probably "
+        "the best way to get a highlights-reel sense of my thinking through those years. Even more than "
+        "my long-form blogs, twitter was where I workshopped my thinking.",
+    ]
+    intro_html = "\n".join([f"<p>{p}</p>" for p in intro_paras])
 
     nav_top = nav_bar()
     nav_bottom = nav_top
@@ -522,28 +551,38 @@ def main():
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Noteworthy Singletons</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>vgr: The Twitter Years (2007&#x2013;22) | 1. Singles</title>
+  <meta property="og:title" content="vgr: The Twitter Years (2007&#x2013;22) | 1. Singles">
+  <meta property="og:description" content="A curated collection of tweets and threads by Venkatesh Rao (@vgr), 2007&#x2013;22.">
+  <meta property="og:image" content="https://venkateshrao.com/twitter-book/assets/cover.png">
+  <meta property="og:type" content="book">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="vgr: The Twitter Years (2007&#x2013;22) | 1. Singles">
+  <meta name="twitter:description" content="A curated collection of tweets and threads by Venkatesh Rao (@vgr), 2007&#x2013;22.">
+  <meta name="twitter:image" content="https://venkateshrao.com/twitter-book/assets/cover.png">
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../compendium.css">
+  <link rel="stylesheet" href="../mobile.css">
 </head>
 <body>
   <div class="page">
     <div class="page-content">
       <div class="chapter">
         <header>
-          <h1 class="chapter-title">Noteworthy Singletons</h1>
-          <p class="compendium-intro">{escape(intro_lorem)}</p>
-          <div class="compendium-stats">
-            <div><strong>Statistics</strong></div>
-            <div>Range: {year_min}–{year_max}</div>
-            <div>Included tweets: {kept_count}</div>
-            <div>Featured tweets: {featured_count}</div>
-            <div><strong>Tag counts</strong>: {tag_summary}</div>
-            <div><strong>Year counts</strong>: {year_summary}</div>
-          </div>
+          <h1 class="chapter-title">Singles</h1>
+          <div class="compendium-intro">{intro_html}</div>
         </header>
 
         {_NL2.join(parts)}
+
+        <div class="compendium-stats">
+          <h3 class="stats-title">Chapter Statistics</h3>
+          <div class="stats-row"><span class="stats-label">Range</span> {year_min}–{year_max}</div>
+          <div class="stats-row"><span class="stats-label">Tweets</span> {kept_count} included · {featured_count} featured</div>
+          <div class="stats-row"><span class="stats-label">By tag</span> {tag_summary_html}</div>
+          <div class="stats-row"><span class="stats-label">By year</span> {year_summary}</div>
+        </div>
 
       </div>
     </div>

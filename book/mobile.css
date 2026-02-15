@@ -1,0 +1,111 @@
+/* === MOBILE RESPONSIVE === */
+/* Loaded after style.css and compendium.css */
+
+@media (max-width: 600px) {
+  body {
+    padding: 0.5rem 0.5rem;
+  }
+
+  .chapter {
+    padding: 1rem 1rem;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Nav bar: compact */
+  .book-nav {
+    font-size: 0.72rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0;
+    gap: 0.25rem;
+  }
+  .nav-link .nav-label {
+    display: none;
+  }
+  .nav-link.nav-toc {
+    font-size: 0.78em;
+  }
+
+  /* Title page */
+  .titlepage h1 {
+    font-size: 1.8rem;
+  }
+  .titlepage .subtitle {
+    font-size: 1rem;
+  }
+  .titlepage .byline {
+    font-size: 1.1rem;
+  }
+  .titlepage {
+    min-height: 50vh;
+  }
+
+  /* Chapter headings */
+  h1, .chapter-title {
+    font-size: 1.4rem;
+  }
+  h2 {
+    font-size: 1.15rem;
+  }
+
+  /* Tweet text: bump up for readability */
+  .tweet-text {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .tweet-meta {
+    font-size: 0.8rem;
+  }
+
+  /* Media: full width on phones */
+  .tweet-media img,
+  .tweet-media video {
+    max-width: 100%;
+  }
+
+  /* ToC */
+  .toc-list .toc-item a {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .toc-list .toc-preface a,
+  .toc-list .toc-singletons a {
+    font-size: 1rem;
+  }
+  .toc-date {
+    display: block;
+    font-size: 0.78em;
+  }
+
+  /* Chapter summary */
+  .chapter-summary {
+    font-size: 0.88rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  /* Endnotes */
+  .endnotes-list {
+    font-size: 0.8rem;
+    word-break: break-all;
+  }
+
+  /* Compendium */
+  .compendium-stats {
+    padding: 0.75rem 1rem;
+  }
+  .stats-label {
+    width: auto;
+    display: block;
+  }
+
+  /* Quote boxes */
+  blockquote.quote-box {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Cover image */
+  .cover .cover-image {
+    max-width: 100%;
+  }
+}
