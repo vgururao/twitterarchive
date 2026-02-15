@@ -102,11 +102,34 @@ Shared tweet text rendering lives in `data/tweet_text_cleanup.py` (used by both 
 - Title page: author name linked to venkateshrao.com, copyright statement
 - Constants `BOOK_TITLE`, `SITE_BASE_URL`, `COVER_IMAGE_URL` in generator for reuse
 
+## Completed (v1.2)
+
+- Floating chapter navigation (Ch+/Ch−/ToC) on all pages, fixed to viewport outside content box
+- Tweet permalink anchors with copy-to-clipboard + persistent highlight on all chapters (compendium + threads)
+- Chapter title link-copy emoji on every page (copies page URL, no anchor)
+- Hash-link auto-scroll + highlight on page load (for shared tweet permalinks)
+- Fix double-escaped HTML entities (`&amp;gt;` etc.) in compendium `auto_link_text` and quote boxes
+- Title page: edition note (online version, Contraptions newsletter link), "Note on Production" box (ChatGPT/Claude Code phases, GitHub repo link)
+- Mobile fix: `overflow-x: hidden` + proper floating nav repositioning (fixes horizontal scroll bounce)
+- Preface typo fixes
+
 ## Next session priorities
 
 1. **ePub generation** — generate an ePub version of the book for e-readers (Kindle, Apple Books, etc.)
 2. **Print/PDF generation** — generate a print-ready PDF version, with appropriate page layout, margins, and typography
 3. **Ongoing content edits** — chapter summaries, preface tweaks, adding/removing singles
+
+## Future: full archive as queryable corpus + oracle
+
+After offline versions are done, augment the book with the full ~150k tweet archive in queryable form. Four-phase plan:
+
+1. **Normalize full corpus** — Clean up the entire archive (not just curated 102 chapters) into a single canonical format (JSON or Parquet). Consistent fields: id, timestamp, text, thread_id, reply_to, media refs, metrics. Full thread reconstruction for all threads, not just selected ones.
+
+2. **IPFS archival** — Pin the rendered book + full corpus on IPFS for permanent addressability. Use a pinning service (Pinata, web3.storage, or Filecoin) for persistence. CID becomes the canonical reference. Keep GitHub Pages as primary access; IPFS as the permanence/memorialization layer.
+
+3. **RAG-based query interface** — Embed all tweets into a vector store, build a semantic search + retrieval-augmented generation interface. Allows queries like "what did vgr say about X?" with cited source tweets. Could be a lightweight web app or CLI tool.
+
+4. **Fine-tuned oracle (experimental)** — Explore fine-tuning or persona distillation to create a model that can respond in vgr's voice/style. Hybrid approach recommended: RAG for factual grounding + system prompt for personality. Consider mixing in ribbonfarm/blog content for richer training signal. 150k tweets alone may not be enough for convincing fine-tuning.
 
 ## Future: make repo forkable as a starter template
 
