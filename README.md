@@ -89,10 +89,34 @@ python3 data/fetch_url_titles.py         # Fetch/update URL page titles
 - **Permalink anchors**: Each compendium tweet has a direct-link anchor for sharing individual singles
 - **Page metadata**: `<title>` tags with book title prefix on all pages
 
-## Pending work
+## Search engine and LLM discoverability
 
-- ePub generation for e-readers
-- Print/PDF generation with proper page layout
+The build generates three discovery files in `book/`:
+
+- **`sitemap.xml`** — standard XML sitemap for search engine crawlers (106 URLs with priority hints)
+- **`llms.txt`** — Markdown index following the [llms.txt spec](https://llmstxt.org/): book title, summary, and all 102 chapters with titles, dates, and summaries
+- **`llms-full.txt`** — the entire book as a single ~730KB Markdown file: all tweet text from all 102 chapters with expanded URLs, no HTML markup
+
+These are generated automatically at the end of `generate_book_html_with_titles.py` and deployed with the rest of the site.
+
+## Future subprojects
+
+### ePub
+Generate an ePub version of the book for e-readers (Kindle, Apple Books, etc.).
+
+### Print/PDF
+Generate a print-ready PDF version with proper page layout, margins, and typography.
+
+### Oracle
+Put the full ~150k tweet archive online as a queryable corpus with an associated AI model. Four phases:
+
+1. **Normalize full corpus** — Clean the entire archive (not just the curated 102 chapters) into a single canonical format. Consistent fields, full thread reconstruction for all threads.
+2. **IPFS archival** — Pin the rendered book + full corpus on IPFS for permanent addressability. GitHub Pages remains primary access; IPFS as the permanence layer.
+3. **RAG-based query interface** — Embed all tweets into a vector store, build semantic search + retrieval-augmented generation. Allows queries like "what did vgr say about X?" with cited source tweets. Could be a lightweight web app or CLI tool.
+4. **MCP server + fine-tuned oracle** — Expose the corpus and search tools via an MCP server, so LLM clients (Claude Desktop, Claude Code, etc.) can query the archive directly through tool use. Explore fine-tuning or persona distillation to create a model that responds in vgr's voice/style. Hybrid approach: RAG for factual grounding + system prompt for personality. Consider mixing in ribbonfarm/blog content for richer training signal.
+
+## Pending cleanup
+
 - Fix chapter 57 title (contains raw t.co URL in `chapter_titles.json`)
 - Remove ghost thread `1279451428302422016` from `selection_final_clean.json`
 - Retrieve other-people's tweets via Wayback Machine for quote-box embedding

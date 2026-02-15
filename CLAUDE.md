@@ -113,15 +113,26 @@ Shared tweet text rendering lives in `data/tweet_text_cleanup.py` (used by both 
 - Mobile fix: `overflow-x: hidden` + proper floating nav repositioning (fixes horizontal scroll bounce)
 - Preface typo fixes
 
+## Completed (v1.3)
+
+- Search engine and LLM discoverability:
+  - `sitemap.xml`: standard XML sitemap (106 URLs with priority hints)
+  - `llms.txt`: Markdown index following the llms.txt spec (title, summary, 102 chapters with summaries)
+  - `llms-full.txt`: entire book as single ~748KB Markdown file (title page, preface, all 102 chapters)
+- Title page: word count / page count stats (119k words, ~350–400 pages), LLM-friendly note with oracle teaser
+- Production note box: improved styling (left accent border, uppercase heading, italic separator for LLM note)
+
 ## Next session priorities
 
 1. **ePub generation** — generate an ePub version of the book for e-readers (Kindle, Apple Books, etc.)
 2. **Print/PDF generation** — generate a print-ready PDF version, with appropriate page layout, margins, and typography
 3. **Ongoing content edits** — chapter summaries, preface tweaks, adding/removing singles
 
-## Future: full archive as queryable corpus + oracle
+## Future subprojects
 
-After offline versions are done, augment the book with the full ~150k tweet archive in queryable form. Four-phase plan:
+### Oracle: full archive as queryable corpus
+
+After offline versions are done, augment the book with the full ~150k tweet archive in queryable form. Four phases:
 
 1. **Normalize full corpus** — Clean up the entire archive (not just curated 102 chapters) into a single canonical format (JSON or Parquet). Consistent fields: id, timestamp, text, thread_id, reply_to, media refs, metrics. Full thread reconstruction for all threads, not just selected ones.
 
@@ -129,7 +140,7 @@ After offline versions are done, augment the book with the full ~150k tweet arch
 
 3. **RAG-based query interface** — Embed all tweets into a vector store, build a semantic search + retrieval-augmented generation interface. Allows queries like "what did vgr say about X?" with cited source tweets. Could be a lightweight web app or CLI tool.
 
-4. **Fine-tuned oracle (experimental)** — Explore fine-tuning or persona distillation to create a model that can respond in vgr's voice/style. Hybrid approach recommended: RAG for factual grounding + system prompt for personality. Consider mixing in ribbonfarm/blog content for richer training signal. 150k tweets alone may not be enough for convincing fine-tuning.
+4. **MCP server + fine-tuned oracle** — Expose the corpus and search tools via an MCP server for LLM clients (Claude Desktop, Claude Code, etc.). Explore fine-tuning or persona distillation to create a model that can respond in vgr's voice/style. Hybrid approach: RAG for factual grounding + system prompt for personality. Consider mixing in ribbonfarm/blog content for richer training signal.
 
 ## Future: make repo forkable as a starter template
 

@@ -764,6 +764,216 @@ def ensure_dirs():
     CHAPTERS_DIR.mkdir(parents=True, exist_ok=True)
 
 
+COMPENDIUM_TAGGED_JSON = DATA_DIR / "compendium_tagged_with_prehistory.json"
+
+# Regex for stripping HTML tags
+_TAG_RE = re.compile(r'<[^>]+>')
+# Regex for collapsing multiple blank lines
+_MULTI_BLANK_RE = re.compile(r'\n{3,}')
+
+
+def _html_to_plain(html_str):
+    """Convert an HTML fragment to readable plain text."""
+    # Replace block-level elements with newlines
+    text = re.sub(r'<br\s*/?>', '\n', html_str)
+    text = re.sub(r'</p>', '\n\n', text)
+    text = re.sub(r'</li>', '\n', text)
+    text = re.sub(r'<h[1-6][^>]*>', '\n', text)
+    text = re.sub(r'</h[1-6]>', '\n\n', text)
+    # Strip all remaining tags
+    text = _TAG_RE.sub('', text)
+    # Decode HTML entities
+    text = unescape(text)
+    # Collapse excessive blank lines and strip
+    text = _MULTI_BLANK_RE.sub('\n\n', text)
+    return text.strip()
+
+
+def _read_frontmatter_as_text(fragment_path):
+    """Read an HTML frontmatter fragment and return it as plain text."""
+    if not fragment_path.exists():
+        return ""
+    return _html_to_plain(fragment_path.read_text(encoding="utf-8"))
+
+
+def _plain_tweet_text(text, raw, url_overrides=None):
+    """Convert tweet text to readable plain text: unescape entities, expand t.co URLs, strip media URLs."""
+    if not text:
+        return ""
+    if url_overrides is None:
+        url_overrides = {}
+    decoded = unescape(text)
+
+    # Strip media t.co URLs
+    media = ((raw or {}).get("extended_entities") or {}).get("media") or \
+            ((raw or {}).get("entities") or {}).get("media") or []
+    for m in media:
+        short = (m if isinstance(m, dict) else {}).get("url")
+        if short:
+            decoded = decoded.replace(short, "")
+
+    # Expand t.co URLs to real URLs
+    entities = (raw or {}).get("entities") or {}
+    urls = entities.get("urls") or []
+    for u in urls:
+        short = u.get("url")
+        expanded = u.get("expanded_url") or u.get("url") or ""
+        if short and expanded:
+            override = url_overrides.get(expanded)
+            if override:
+                expanded = override.get("replacement_url", expanded)
+            decoded = decoded.replace(short, expanded)
+
+    return decoded.strip()
+
+
+def write_sitemap(pages):
+    """Generate book/sitemap.xml listing all pages."""
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    for p in pages:
+        url = SITE_BASE_URL + "/" + p.href
+        if p.kind in ("cover", "toc"):
+            priority = "1.0"
+        elif p.kind in ("thread", "singletons"):
+            priority = "0.8"
+        else:
+            priority = "0.6"
+        lines.append("  <url>")
+        lines.append("    <loc>{}</loc>".format(escape(url)))
+        lines.append("    <priority>{}</priority>".format(priority))
+        lines.append("  </url>")
+    lines.append("</urlset>")
+    out = BOOK_DIR / "sitemap.xml"
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("Wrote sitemap: {} ({} URLs)".format(out, len(pages)))
+
+
+def write_llms_txt(pages, summaries):
+    """Generate book/llms.txt — LLM discovery index in Markdown."""
+    lines = []
+    lines.append("# {}".format(BOOK_TITLE))
+    lines.append("")
+    lines.append("> {}".format(BOOK_DESCRIPTION))
+    lines.append("")
+    lines.append("This is a curated book of 102 chapters drawn from Venkatesh Rao's Twitter archive (2007-2022).")
+    lines.append("Chapter 1 is a compendium of 396 standalone tweets; chapters 2-102 are threads.")
+    lines.append("")
+    lines.append("- [Full book text (all chapters)](llms-full.txt)")
+    lines.append("- [Table of Contents]({}/toc.html)".format(SITE_BASE_URL))
+    lines.append("")
+    lines.append("## Chapters")
+    lines.append("")
+    for p in pages:
+        if p.kind in ("cover", "title", "toc", "preface"):
+            continue
+        ch_label = "{}. ".format(p.chapter_no) if p.chapter_no else ""
+        date_part = " ({})".format(p.subtitle) if p.subtitle else ""
+        line = "- **{}{}**{}".format(ch_label, p.title, date_part)
+        # Add summary if available
+        thread_id = p.href.replace("chapters/chapter_", "").replace(".html", "")
+        summary = summaries.get(thread_id, "")
+        if summary:
+            line += ": {}".format(summary)
+        lines.append(line)
+    out = BOOK_DIR / "llms.txt"
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("Wrote llms.txt: {} ({} chapter entries)".format(
+        out, sum(1 for p in pages if p.kind in ("thread", "singletons"))))
+
+
+def write_llms_full_txt(pages, threads_by_id, tweets_by_id, url_overrides):
+    """Generate book/llms-full.txt — full book text as Markdown."""
+    lines = []
+    lines.append("# {}".format(BOOK_TITLE))
+    lines.append("")
+    lines.append(BOOK_DESCRIPTION)
+    lines.append("")
+
+    # Title page
+    title_text = _read_frontmatter_as_text(TITLE_FRAGMENT)
+    if title_text:
+        lines.append("---")
+        lines.append("")
+        lines.append("## Title Page")
+        lines.append("")
+        lines.append(title_text)
+        lines.append("")
+
+    # Preface
+    preface_text = _read_frontmatter_as_text(PREFACE_FRAGMENT)
+    if preface_text:
+        lines.append("---")
+        lines.append("")
+        lines.append("## Preface")
+        lines.append("")
+        lines.append(preface_text)
+        lines.append("")
+
+    # Chapter 1: Singles (compendium)
+    if COMPENDIUM_TAGGED_JSON.exists():
+        lines.append("---")
+        lines.append("")
+        lines.append("## 1. Singles")
+        lines.append("")
+        lines.append("A compendium of noteworthy standalone tweets, organized chronologically.")
+        lines.append("")
+        data = json.loads(COMPENDIUM_TAGGED_JSON.read_text(encoding="utf-8"))
+        tagged = data.get("tweets") or []
+        for t in tagged:
+            if t.get("kind") == "section_header":
+                lines.append("### {}".format(t.get("title", "")))
+                lines.append("")
+                continue
+            if t.get("discard"):
+                continue
+            tid = str(t.get("id_str") or "").strip()
+            if not tid:
+                continue
+            norm = tweets_by_id.get(tid) or {}
+            raw = norm.get("raw") or {}
+            text = raw.get("full_text") or raw.get("text") or norm.get("full_text") or ""
+            plain = _plain_tweet_text(text, raw, url_overrides)
+            if plain:
+                lines.append(plain)
+                lines.append("")
+
+    # Thread chapters
+    for p in pages:
+        if p.kind != "thread":
+            continue
+        thread_id = p.href.replace("chapters/chapter_", "").replace(".html", "")
+        thread = threads_by_id.get(thread_id)
+        if not thread:
+            continue
+
+        lines.append("---")
+        lines.append("")
+        ch_label = "{}. ".format(p.chapter_no) if p.chapter_no else ""
+        lines.append("## {}{}".format(ch_label, p.title))
+        if p.subtitle:
+            lines.append("")
+            lines.append("*{}*".format(p.subtitle))
+        lines.append("")
+
+        tweets = thread.get("tweets") or []
+        tweets = sorted(tweets, key=lambda tw: int(tw.get("id_str") or "0"))
+        for tw in tweets:
+            rid = str(tw.get("id_str") or "")
+            raw = (tweets_by_id.get(rid) or {}).get("raw") or tw.get("raw") or {}
+            text = raw.get("full_text") or raw.get("text") or tw.get("text") or ""
+            plain = _plain_tweet_text(text, raw, url_overrides)
+            if plain:
+                lines.append(plain)
+                lines.append("")
+
+    out = BOOK_DIR / "llms-full.txt"
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # Count approximate size
+    size_kb = out.stat().st_size / 1024
+    print("Wrote llms-full.txt: {} ({:.0f} KB)".format(out, size_kb))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-cleanup", action="store_true", help="Invoke data/tweet_text_cleanup.py before generating.")
@@ -814,6 +1024,12 @@ def main():
     print(f"Wrote title: {TITLE_OUT}")
     print(f"Wrote preface: {PREFACE_OUT}")
     print(f"Patched/checked singletons: {CHAPTERS_DIR / 'compendium.html'}")
+
+    # Generate discovery files
+    summaries = load_chapter_summaries()
+    write_sitemap(pages)
+    write_llms_txt(pages, summaries)
+    write_llms_full_txt(pages, threads_by_id, tweets_by_id, url_overrides)
 
 
 if __name__ == "__main__":
