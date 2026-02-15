@@ -24,7 +24,7 @@ import re
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from html import escape
+from html import escape, unescape
 from pathlib import Path
 
 
@@ -197,7 +197,7 @@ def render_quote_box_for_id(qid: str, tweets_by_id: dict):
     parts = [
         '<div class="quote-box">',
         f'<div class="quote-meta">{escape(str(qdate))} · ❤️ {qlikes} · 🔁 {qrt} · id {escape(qid)}</div>',
-        f'<div class="quote-text">{escape(qtext)}</div>',
+        f'<div class="quote-text">{escape(unescape(qtext))}</div>',
     ]
     media_html = render_media_html(qraw)
     if media_html:
@@ -230,7 +230,7 @@ def auto_link_text(text: str, raw: dict, url_titles: dict = None, url_overrides:
         url_titles = {}
     if url_overrides is None:
         url_overrides = {}
-    text_html = text
+    text_html = unescape(text)
 
     entities = (raw or {}).get("entities") or {}
     urls = entities.get("urls") or []
@@ -480,7 +480,7 @@ def main():
         tweet_id = escape(r["id_str"])
         tweet_html = []
         tweet_html.append(f'<div class="{" ".join(classes)}" data-tweet-id="{tweet_id}" id="t{tweet_id}">')
-        tweet_html.append(f'<a class="tweet-permalink" href="#t{tweet_id}" title="Link to this tweet">&#x1F517;</a>')
+        tweet_html.append(f'<a class="tweet-permalink" href="#t{tweet_id}" title="Copy link to this tweet" onclick="return copyTweetLink(this, \'t{tweet_id}\')">&#x1F517;</a>')
         tweet_html.append(f'<div class="tweet-date">{escape(date_str)}</div>')
 
         if is_ascii:
@@ -570,7 +570,7 @@ def main():
     <div class="page-content">
       <div class="chapter">
         <header>
-          <h1 class="chapter-title">Singles</h1>
+          <h1 class="chapter-title">Singles <a class="chapter-permalink" href="#" title="Copy link to this page" onclick="return copyPageLink(this)">&#x1F517;</a></h1>
           <div class="compendium-intro">{intro_html}</div>
         </header>
 
@@ -587,6 +587,57 @@ def main():
       </div>
     </div>
   </div>
+<script>
+function copyPageLink(el) {{
+  navigator.clipboard.writeText(window.location.origin + window.location.pathname).then(function() {{
+    var tip = document.createElement('span');
+    tip.className = 'copy-tooltip';
+    tip.textContent = 'Link copied!';
+    el.appendChild(tip);
+    setTimeout(function() {{ tip.remove(); }}, 1800);
+  }});
+  return false;
+}}
+function copyTweetLink(el, id) {{
+  var tweet = document.getElementById(id);
+  if (!tweet) return false;
+  // Build full permalink URL
+  var url = window.location.origin + window.location.pathname + '#' + id;
+  // Copy to clipboard
+  navigator.clipboard.writeText(url).then(function() {{
+    // Show tooltip
+    var tip = document.createElement('span');
+    tip.className = 'copy-tooltip';
+    tip.textContent = 'Link copied!';
+    el.appendChild(tip);
+    setTimeout(function() {{ tip.remove(); }}, 1800);
+  }});
+  // Scroll tweet near top (offset by ~100px for "second tweet" position)
+  var y = tweet.getBoundingClientRect().top + window.pageYOffset - 100;
+  window.scrollTo({{ top: y, behavior: 'smooth' }});
+  // Clear any previous highlight, then highlight this tweet
+  var prev = document.querySelector('.permalink-highlight');
+  if (prev) prev.classList.remove('permalink-highlight');
+  tweet.classList.add('permalink-highlight');
+  // Update URL hash without jumping
+  history.replaceState(null, '', '#' + id);
+  return false;
+}}
+// On page load, highlight tweet if hash is present
+(function() {{
+  if (window.location.hash) {{
+    var id = window.location.hash.substring(1);
+    var tweet = document.getElementById(id);
+    if (tweet) {{
+      setTimeout(function() {{
+        var y = tweet.getBoundingClientRect().top + window.pageYOffset - 100;
+        window.scrollTo({{ top: y, behavior: 'smooth' }});
+        tweet.classList.add('permalink-highlight');
+      }}, 300);
+    }}
+  }}
+}})();
+</script>
 </body>
 </html>
 """

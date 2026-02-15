@@ -21,10 +21,11 @@
     
     <div class="page-content">
       <div class="chapter">
-        <h1 class="chapter-title">88. Efficient Storytelling</h1>
+        <h1 class="chapter-title">88. Efficient Storytelling <a class="chapter-permalink" href="#" title="Copy link to this page" onclick="return copyPageLink(this)">&#x1F517;</a></h1>
         <div class="chapter-subtitle">January 1, 2022</div>
         <div class="chapter-summary"><em>In which I note that screen-era storytelling has gotten brutally efficient — lean narrative with no wasted beats, like amygdala assembly programming — citing Cobra Kai, The Expanse, and Stranger Things as examples of a mannerist late stage that may be on the cusp of disruption.</em></div>
-        <div class="tweet">
+        <div class="tweet" id="t1477106380909678596">
+  <a class="tweet-permalink" href="#t1477106380909678596" title="Copy link to this tweet" onclick="return copyTweetLink(this, 't1477106380909678596')">&#x1F517;</a>
   <div class="tweet-text">Examples: Cobra Kai, The Expanse….<br>
 <br>
 Not a single missed beat or sloppy discursive scene. No spezzatura. No weird narrative conceits overindulged.</div>
@@ -32,13 +33,15 @@ Not a single missed beat or sloppy discursive scene. No spezzatura. No weird nar
 
 
 </div>
-<div class="tweet">
+<div class="tweet" id="t1381087092147593216">
+  <a class="tweet-permalink" href="#t1381087092147593216" title="Copy link to this tweet" onclick="return copyTweetLink(this, 't1381087092147593216')">&#x1F517;</a>
   <div class="tweet-text">Storytelling has gotten so damn efficient due to screen media. A well-scripted modern TV show moves along incredibly briskly. It’s like Lean Storytelling. Shortest path through the beats of the hero’s journeys. It’s barely even writing. It’s amygdala assembly programming.</div>
 
 
 
 </div>
-<div class="tweet">
+<div class="tweet" id="t1381088966061944835">
+  <a class="tweet-permalink" href="#t1381088966061944835" title="Copy link to this tweet" onclick="return copyTweetLink(this, 't1381088966061944835')">&#x1F517;</a>
   <div class="tweet-text">Nothing forces efficiency more than knowing every minute of screen time is costing 10s to 100s of thousands. No time to dawdle. Can lead to mechanical effects sometimes, but damn the machine works.<br>
 <br>
 Slick is the word. It’s not always good storytelling but it’s slick.</div>
@@ -46,25 +49,29 @@ Slick is the word. It’s not always good storytelling but it’s slick.</div>
 
 
 </div>
-<div class="tweet">
+<div class="tweet" id="t1381094323115028484">
+  <a class="tweet-permalink" href="#t1381094323115028484" title="Copy link to this tweet" onclick="return copyTweetLink(this, 't1381094323115028484')">&#x1F517;</a>
   <div class="tweet-text">Wonder if there’s a way to measure this. The Expanse, Stranger Things, Cobra Kai have struck ne as especially brutally efficient.</div>
 
 
 
 </div>
-<div class="tweet">
+<div class="tweet" id="t1381095301579034625">
+  <a class="tweet-permalink" href="#t1381095301579034625" title="Copy link to this tweet" onclick="return copyTweetLink(this, 't1381095301579034625')">&#x1F517;</a>
   <div class="tweet-text">It’s like tourists on a package bus tour in Europe. “If it’s Tuesday it must be Brussels” type pacing.</div>
 
 
 
 </div>
-<div class="tweet">
+<div class="tweet" id="t1381099096128163841">
+  <a class="tweet-permalink" href="#t1381099096128163841" title="Copy link to this tweet" onclick="return copyTweetLink(this, 't1381099096128163841')">&#x1F517;</a>
   <div class="tweet-text">It’s the sign of a mannerist late stage or something. Like we’re on the cusp of a leap out of this local minimum with a young new kind of storytelling that can afford to be sloppy and loose because it makes big gains on an unexpected vector.</div>
 
 
 
 </div>
-<div class="tweet">
+<div class="tweet" id="t1381100113146179587">
+  <a class="tweet-permalink" href="#t1381100113146179587" title="Copy link to this tweet" onclick="return copyTweetLink(this, 't1381100113146179587')">&#x1F517;</a>
   <div class="tweet-text">Funny how people think this is either obviously a bad thing or obviously a good thing. 🤣<br>
 <br>
 Can’t just let it be a thing huh</div>
@@ -75,7 +82,54 @@ Can’t just let it be a thing huh</div>
       </div>
     </div>
     
-      <nav class="book-nav"><div class="nav-left"><a class="nav-link nav-prev" href="../chapters/chapter_1475525176875905025.html"><span class="nav-arrow">&larr;</span><span class="nav-label">87. Big Frontiers</span></a></div><div class="nav-center"><a class="nav-link nav-toc" href="../toc.html">Table of Contents</a></div><div class="nav-right"><a class="nav-link nav-next" href="../chapters/chapter_1508147225729273856.html"><span class="nav-label">89. Experts Trilemma</span><span class="nav-arrow">&rarr;</span></a></div></nav>
   </div>
+  
+<script>
+function copyPageLink(el) {
+  navigator.clipboard.writeText(window.location.origin + window.location.pathname).then(function() {
+    var tip = document.createElement('span');
+    tip.className = 'copy-tooltip';
+    tip.textContent = 'Link copied!';
+    el.appendChild(tip);
+    setTimeout(function() { tip.remove(); }, 1800);
+  });
+  return false;
+}
+function copyTweetLink(el, id) {
+  var tweet = document.getElementById(id);
+  if (!tweet) return false;
+  var url = window.location.origin + window.location.pathname + '#' + id;
+  navigator.clipboard.writeText(url).then(function() {
+    var tip = document.createElement('span');
+    tip.className = 'copy-tooltip';
+    tip.textContent = 'Link copied!';
+    el.appendChild(tip);
+    setTimeout(function() { tip.remove(); }, 1800);
+  });
+  var y = tweet.getBoundingClientRect().top + window.pageYOffset - 100;
+  window.scrollTo({ top: y, behavior: 'smooth' });
+  var prev = document.querySelector('.permalink-highlight');
+  if (prev) prev.classList.remove('permalink-highlight');
+  tweet.classList.add('permalink-highlight');
+  history.replaceState(null, '', '#' + id);
+  return false;
+}
+(function() {
+  if (window.location.hash) {
+    var id = window.location.hash.substring(1);
+    var tweet = document.getElementById(id);
+    if (tweet) {
+      setTimeout(function() {
+        var y = tweet.getBoundingClientRect().top + window.pageYOffset - 100;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        tweet.classList.add('permalink-highlight');
+      }, 300);
+    }
+  }
+})();
+</script>
+<nav class="book-nav"><div class="nav-left"><a class="nav-link nav-prev" href="../chapters/chapter_1475525176875905025.html"><span class="nav-arrow">&larr;</span><span class="nav-label">87. Big Frontiers</span></a></div><div class="nav-center"><a class="nav-link nav-toc" href="../toc.html">Table of Contents</a></div><div class="nav-right"><a class="nav-link nav-next" href="../chapters/chapter_1508147225729273856.html"><span class="nav-label">89. Experts Trilemma</span><span class="nav-arrow">&rarr;</span></a></div></nav>
+<a class="float-nav float-nav-prev" href="../chapters/chapter_1475525176875905025.html" title="Previous chapter"><span class="float-nav-chevron">&lsaquo;</span><span class="float-nav-label">Ch. &minus;</span></a>
+<div class="float-nav-right"><a class="float-nav-btn float-nav-toc" href="../toc.html" title="Table of Contents"><span class="float-nav-chevron">&and;</span><span class="float-nav-label">ToC</span></a><a class="float-nav-btn float-nav-next" href="../chapters/chapter_1508147225729273856.html" title="Next chapter"><span class="float-nav-chevron">&rsaquo;</span><span class="float-nav-label">Ch. +</span></a></div>
 </body>
 </html>

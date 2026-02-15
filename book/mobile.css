@@ -108,4 +108,18 @@
   .cover .cover-image {
     max-width: 100%;
   }
+
+  /* Floating nav: reposition to viewport edges on mobile */
+  .float-nav,
+  .float-nav-btn {
+    width: 2.4rem;
+    height: 2.6rem;
+    opacity: 0.5;
+  }
+  .float-nav-chevron { font-size: 1.3rem; }
+  .float-nav-label { font-size: 0.5rem; }
+  .float-nav-prev { right: auto; left: 0.3rem; }
+  .float-nav-right { left: auto; right: 0.3rem; }
+  .float-nav-toc { height: 2.2rem; }
+  .float-nav-toc .float-nav-chevron { font-size: 1rem; }
 }

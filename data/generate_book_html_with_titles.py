@@ -29,7 +29,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from html import escape
+from html import escape, unescape
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -231,6 +231,34 @@ def nav_bar(prev_page: Optional[Page], next_page: Optional[Page], base_prefix: s
     )
 
 
+def floating_nav(prev_page: Optional[Page], next_page: Optional[Page], base_prefix: str) -> str:
+    toc_href = f"{base_prefix}toc.html"
+    parts = []
+    if prev_page:
+        parts.append(
+            f'<a class="float-nav float-nav-prev" href="{base_prefix}{escape(prev_page.href)}" title="Previous chapter">'
+            f'<span class="float-nav-chevron">&lsaquo;</span>'
+            f'<span class="float-nav-label">Ch. &minus;</span>'
+            f'</a>'
+        )
+    right_parts = []
+    right_parts.append(
+        f'<a class="float-nav-btn float-nav-toc" href="{escape(toc_href)}" title="Table of Contents">'
+        f'<span class="float-nav-chevron">&and;</span>'
+        f'<span class="float-nav-label">ToC</span>'
+        f'</a>'
+    )
+    if next_page:
+        right_parts.append(
+            f'<a class="float-nav-btn float-nav-next" href="{base_prefix}{escape(next_page.href)}" title="Next chapter">'
+            f'<span class="float-nav-chevron">&rsaquo;</span>'
+            f'<span class="float-nav-label">Ch. +</span>'
+            f'</a>'
+        )
+    parts.append(f'<div class="float-nav-right">{"".join(right_parts)}</div>')
+    return "\n".join(parts)
+
+
 def social_meta(doc_title: str, description: str = BOOK_DESCRIPTION) -> str:
     return (
         f'  <meta property="og:title" content="{escape(doc_title)}">\n'
@@ -244,7 +272,7 @@ def social_meta(doc_title: str, description: str = BOOK_DESCRIPTION) -> str:
     )
 
 
-def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "", subtitle: str = "", summary: str = "", meta_title: str = "") -> str:
+def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "", subtitle: str = "", summary: str = "", meta_title: str = "", float_nav: str = "") -> str:
     subtitle_html = f'<div class="chapter-subtitle">{escape(subtitle)}</div>' if subtitle else ""
     summary_html = f'<div class="chapter-summary"><em>{escape(summary)}</em></div>' if summary else ""
     doc_title = meta_title if meta_title else title
@@ -266,7 +294,7 @@ def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav
     {nav_top}
     <div class="page-content">
       <div class="chapter">
-        <h1 class="chapter-title">{escape(title)}</h1>
+        <h1 class="chapter-title">{escape(title)} <a class="chapter-permalink" href="#" title="Copy link to this page" onclick="return copyPageLink(this)">&#x1F517;</a></h1>
         {subtitle_html}
         {summary_html}
         {body_html}
@@ -274,12 +302,57 @@ def page_shell(title: str, body_html: str, css_href: str, nav_top: str = "", nav
     </div>
     {nav_bottom}
   </div>
+  {float_nav}
+<script>
+function copyPageLink(el) {{
+  navigator.clipboard.writeText(window.location.origin + window.location.pathname).then(function() {{
+    var tip = document.createElement('span');
+    tip.className = 'copy-tooltip';
+    tip.textContent = 'Link copied!';
+    el.appendChild(tip);
+    setTimeout(function() {{ tip.remove(); }}, 1800);
+  }});
+  return false;
+}}
+function copyTweetLink(el, id) {{
+  var tweet = document.getElementById(id);
+  if (!tweet) return false;
+  var url = window.location.origin + window.location.pathname + '#' + id;
+  navigator.clipboard.writeText(url).then(function() {{
+    var tip = document.createElement('span');
+    tip.className = 'copy-tooltip';
+    tip.textContent = 'Link copied!';
+    el.appendChild(tip);
+    setTimeout(function() {{ tip.remove(); }}, 1800);
+  }});
+  var y = tweet.getBoundingClientRect().top + window.pageYOffset - 100;
+  window.scrollTo({{ top: y, behavior: 'smooth' }});
+  var prev = document.querySelector('.permalink-highlight');
+  if (prev) prev.classList.remove('permalink-highlight');
+  tweet.classList.add('permalink-highlight');
+  history.replaceState(null, '', '#' + id);
+  return false;
+}}
+(function() {{
+  if (window.location.hash) {{
+    var id = window.location.hash.substring(1);
+    var tweet = document.getElementById(id);
+    if (tweet) {{
+      setTimeout(function() {{
+        var y = tweet.getBoundingClientRect().top + window.pageYOffset - 100;
+        window.scrollTo({{ top: y, behavior: 'smooth' }});
+        tweet.classList.add('permalink-highlight');
+      }}, 300);
+    }}
+  }}
+}})();
+</script>
 </body>
 </html>
 """
 
 
-def page_shell_no_h1(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "", meta_title: str = "") -> str:
+def page_shell_no_h1(title: str, body_html: str, css_href: str, nav_top: str = "", nav_bottom: str = "", meta_title: str = "", float_nav: str = "") -> str:
     doc_title = meta_title if meta_title else title
     css_dir = css_href.rsplit("style.css", 1)[0]
     mobile_href = css_dir + "mobile.css"
@@ -303,6 +376,7 @@ def page_shell_no_h1(title: str, body_html: str, css_href: str, nav_top: str = "
     </div>
     {nav_bottom}
   </div>
+  {float_nav}
 </body>
 </html>
 """
@@ -352,9 +426,10 @@ def write_cover(pages: List[Page]):
     prevp = pages[idx - 1] if idx is not None and idx > 0 else None
     nextp = pages[idx + 1] if idx is not None and idx + 1 < len(pages) else None
     nav = nav_bar(prevp, nextp, base_prefix="")
+    fnav = floating_nav(prevp, nextp, base_prefix="")
 
     body = COVER_FRAGMENT.read_text(encoding="utf-8")
-    html = page_shell_no_h1("Cover", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav, meta_title=BOOK_TITLE)
+    html = page_shell_no_h1("Cover", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav, meta_title=BOOK_TITLE, float_nav=fnav)
     COVER_OUT.write_text(html, encoding="utf-8")
 
 
@@ -363,9 +438,10 @@ def write_title_page(pages: List[Page]):
     prevp = pages[idx - 1] if idx is not None and idx > 0 else None
     nextp = pages[idx + 1] if idx is not None and idx + 1 < len(pages) else None
     nav = nav_bar(prevp, nextp, base_prefix="../")
+    fnav = floating_nav(prevp, nextp, base_prefix="../")
 
     body = TITLE_FRAGMENT.read_text(encoding="utf-8")
-    html = page_shell_no_h1(TITLEPAGE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav, meta_title=BOOK_TITLE)
+    html = page_shell_no_h1(TITLEPAGE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav, meta_title=BOOK_TITLE, float_nav=fnav)
     TITLE_OUT.write_text(html, encoding="utf-8")
 
 
@@ -374,10 +450,11 @@ def write_preface_page(pages: List[Page]):
     prevp = pages[idx - 1] if idx is not None and idx > 0 else None
     nextp = pages[idx + 1] if idx is not None and idx + 1 < len(pages) else None
     nav = nav_bar(prevp, nextp, base_prefix="../")
+    fnav = floating_nav(prevp, nextp, base_prefix="../")
 
     body = PREFACE_FRAGMENT.read_text(encoding="utf-8")
     meta = f"{BOOK_TITLE} | Preface"
-    html = page_shell_no_h1(PREFACE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav, meta_title=meta)
+    html = page_shell_no_h1(PREFACE_TITLE, body_html=body, css_href=STYLE_HREF_CHAPTER, nav_top=nav, nav_bottom=nav, meta_title=meta, float_nav=fnav)
     PREFACE_OUT.write_text(html, encoding="utf-8")
 
 
@@ -420,9 +497,10 @@ def write_toc(pages: List[Page]):
     prevp = pages[idx - 1] if idx is not None and idx > 0 else None
     nextp = pages[idx + 1] if idx is not None and idx + 1 < len(pages) else None
     nav = nav_bar(prevp, nextp, base_prefix="")
+    fnav = floating_nav(prevp, nextp, base_prefix="")
 
     toc_meta = f"{BOOK_TITLE} | Table of Contents"
-    html = page_shell_no_h1("Table of Contents", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav, meta_title=toc_meta)
+    html = page_shell_no_h1("Table of Contents", body_html=body, css_href=STYLE_HREF_ROOT, nav_top=nav, nav_bottom=nav, meta_title=toc_meta, float_nav=fnav)
     TOC_OUT.write_text(html, encoding="utf-8")
 
 
@@ -443,7 +521,7 @@ def _render_single_quote_box(tweet_id: str, tweets_by_id: Dict[str, Dict[str, An
     qtext = raw.get("full_text") or raw.get("text") or ""
     if not qtext:
         return ""
-    qsafe = escape(qtext).replace("\n", "<br>\n")
+    qsafe = escape(unescape(qtext)).replace("\n", "<br>\n")
     return f'<blockquote class="quote-box"><div class="quote-text">{qsafe}</div></blockquote>'
 
 
@@ -537,7 +615,8 @@ def generate_thread_chapter_html(page: Page,
         text_html = render_tweet_text_html(text, raw, url_titles=url_titles, url_overrides=url_overrides, embed_self_tweets=True, endnotes=endnotes)
 
         # tweet card
-        parts.append('<div class="tweet">')
+        parts.append(f'<div class="tweet" id="t{escape(rid)}">')
+        parts.append(f'  <a class="tweet-permalink" href="#t{escape(rid)}" title="Copy link to this tweet" onclick="return copyTweetLink(this, \'t{escape(rid)}\')">&#x1F517;</a>')
         parts.append(f'  <div class="tweet-text">{text_html}</div>')
 
         # Quote boxes: explicit quoted_id
@@ -618,12 +697,14 @@ def write_thread_chapters(pages: List[Page], threads_by_id: Dict[str, Dict[str, 
         prevp = pages[i - 1] if i > 0 else None
         nextp = pages[i + 1] if i + 1 < len(pages) else None
         nav = nav_bar(prevp, nextp, base_prefix="../")
+        fnav = floating_nav(prevp, nextp, base_prefix="../")
 
         summary = summaries.get(thread_id, "")
         html = generate_thread_chapter_html(p, thread, tweets_by_id, url_titles=url_titles, url_overrides=url_overrides, summary=summary)
-        # inject nav
+        # inject top nav
         html = html.replace('<div class="page">', f'<div class="page">\n    {nav}', 1)
-        html = html.replace('</div>\n</body>', f'    {nav}\n  </div>\n</body>', 1)
+        # inject bottom nav + floating nav before </body>
+        html = html.replace('</body>', f'{nav}\n{fnav}\n</body>', 1)
 
         out_path = BOOK_DIR / p.href
         out_path.write_text(html, encoding="utf-8")
@@ -648,14 +729,19 @@ def patch_compendium_nav(pages: List[Page]):
     prevp = pages[idx - 1] if idx > 0 else None
     nextp = pages[idx + 1] if idx + 1 < len(pages) else None
     nav = nav_bar(prevp, nextp, base_prefix="../")
+    fnav = floating_nav(prevp, nextp, base_prefix="../")
 
     html = comp.read_text(encoding="utf-8")
     # If compendium was generated with its own nav, replace it; else inject at top/bottom.
     if '<nav class="book-nav">' in html:
         html = patch_nav_in_html(html, nav, nav)
+        # Inject floating nav before </body>
+        if 'class="float-nav' not in html:
+            html = html.replace('</body>', f'{fnav}\n</body>')
     else:
         html = html.replace('<div class="page">', f'<div class="page">\n    {nav}', 1)
-        html = html.replace('</div>\n</body>', f'    {nav}\n  </div>\n</body>', 1)
+        # Inject bottom nav + floating nav before </body>
+        html = html.replace('</body>', f'{nav}\n{fnav}\n</body>')
     comp.write_text(html, encoding="utf-8")
 
 

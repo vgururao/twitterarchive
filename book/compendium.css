@@ -84,6 +84,36 @@
 }
 .tweet-permalink:hover {
   opacity: 1 !important;
+  cursor: pointer;
+}
+
+/* "Link copied!" tooltip */
+.copy-tooltip {
+  position: absolute;
+  top: -1.6rem;
+  right: 0;
+  background: #4a4035;
+  color: #faf6f0;
+  font-size: 0.65rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tooltip-fade 1.8s ease-out forwards;
+}
+@keyframes tooltip-fade {
+  0%, 60% { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+/* Permalink highlight (persistent until another tweet is selected) */
+.compendium-tweet.permalink-highlight,
+.tweet.permalink-highlight {
+  outline: 2px solid #c5a96a;
+  outline-offset: 2px;
+  border-radius: 4px;
+  background: #f5edd8;
 }
 
 /* ASCII tweets */
