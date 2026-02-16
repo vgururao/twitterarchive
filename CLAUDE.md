@@ -122,6 +122,11 @@ Shared tweet text rendering lives in `data/tweet_text_cleanup.py` (used by both 
 - Title page: word count / page count stats (119k words, ~350–400 pages), LLM-friendly note with oracle teaser
 - Production note box: improved styling (left accent border, uppercase heading, italic separator for LLM note)
 
+## Completed (v1.4)
+
+- Keyboard navigation: left/right arrow keys for chapter prev/next on all pages
+- Title page stat fix: corrected "0.26%" to "2%" (3,175 tweets out of 153,243 in full archive)
+
 ## Next session priorities
 
 1. **ePub generation** — generate an ePub version of the book for e-readers (Kindle, Apple Books, etc.)

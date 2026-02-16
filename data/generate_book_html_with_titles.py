@@ -256,6 +256,19 @@ def floating_nav(prev_page: Optional[Page], next_page: Optional[Page], base_pref
             f'</a>'
         )
     parts.append(f'<div class="float-nav-right">{"".join(right_parts)}</div>')
+    # Keyboard navigation: left/right arrow keys for chapter nav
+    parts.append(
+        '<script>'
+        'document.addEventListener("keydown",function(e){'
+        'if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;'
+        'if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;'
+        'var a;'
+        'if(e.key==="ArrowLeft")a=document.querySelector(".float-nav-prev");'
+        'else if(e.key==="ArrowRight")a=document.querySelector(".float-nav-next");'
+        'if(a){e.preventDefault();a.click();}'
+        '});'
+        '</script>'
+    )
     return "\n".join(parts)
 
 

@@ -83,7 +83,7 @@ python3 data/fetch_url_titles.py         # Fetch/update URL page titles
 - **External tweet references**: Rendered as "tweet" link with superscript endnotes per chapter
 - **Media**: Photos, videos, and animated GIFs embedded; t.co URLs stripped from text
 - **Twitter markdown**: `*bold*` and `_italics_` rendered as HTML
-- **Navigation**: Boxed nav bar on every page with prev/next/ToC links
+- **Navigation**: Boxed nav bar on every page with prev/next/ToC links; keyboard nav (left/right arrow keys)
 - **Mobile-responsive**: Viewport meta + dedicated mobile CSS for phone readability
 - **Social cards**: Open Graph and Twitter Card meta on every page with cover image and per-chapter summaries
 - **Permalink anchors**: Each compendium tweet has a direct-link anchor for sharing individual singles
